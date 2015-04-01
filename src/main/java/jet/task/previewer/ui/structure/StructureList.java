@@ -1,19 +1,16 @@
 package jet.task.previewer.ui.structure;
 
-import jet.task.previewer.model.Entry;
-import jet.task.previewer.model.Leaf;
 import jet.task.previewer.ui.EventUtils;
 import jet.task.previewer.ui.engine.StructureController;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.ListModel;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -32,15 +29,8 @@ public class StructureList extends JList<Object> {
         throw new UnsupportedOperationException(StructureList.class + " does not support arbitrary model change");
     }
 
-    private void changeStructureSource(@NotNull StructureController controller, @NotNull ListModel model,
-                                       @NotNull ListCellRenderer cellRenderer) {
+    private void changeStructureSource(@NotNull StructureController controller) {
         this.controller = controller;
-        setModel(model);
-        setCellRenderer(cellRenderer);
-    }
-
-    private void updateStructureSource() {
-
     }
 
     public static StructureList newInstance() {
@@ -71,11 +61,10 @@ public class StructureList extends JList<Object> {
     }
 
     private static void changeDirectoryExt(StructureList structureList, Object selectedElement) {
-        // todo REWRITE!!!! (check if folder and go deep)
         if (structureList.controller.isDirectory(selectedElement)) {
-            StructureController newController = structureList.controller.changeDirectory(selectedElement);
             // todo commented because of partial commit
 /*
+            StructureController newController = structureList.controller.changeDirectory(selectedElement, );
             changeDirectory(structureList, selectedElement.getPath());
 */
         }/* else if (selectedElement instanceof Leaf) {

@@ -1,15 +1,16 @@
 package jet.task.previewer.ui.ftp;
 
-import javafx.collections.ListChangeListener;
-import jet.task.previewer.ui.engine.ChangeDirectoryException;
+import jet.task.previewer.ui.engine.DoneCallback;
 import jet.task.previewer.ui.engine.StructureController;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * Created by akoshevoy on 01.04.2015.
@@ -22,6 +23,7 @@ public class FTPStructureController implements StructureController<FTPFile> {
 
     private String currentDirectory;
 
+
     public FTPStructureController(@NotNull FTPClient ftpClient) {
         this.ftpClient = ftpClient;
     }
@@ -31,32 +33,40 @@ public class FTPStructureController implements StructureController<FTPFile> {
     }
 
     @Override
-    public StructureController<?> changeDirectory(@NotNull FTPFile directory) {
+    public Future<StructureController<?>> changeDirectory(@NotNull FTPFile directory, @NotNull DoneCallback doneCallback) throws IOException {
         // todo process symbolic links
         if (!directory.isDirectory()) {
-            throw new ChangeDirectoryException("File " + directory + " is not a directory");
+            throw new IllegalArgumentException("File " + directory + " is not a directory");
         }
         // todo refactor
         String newCurrentDirectory = getChildFilePathname(directory);
-        try {
-            boolean result = ftpClient.changeWorkingDirectory(newCurrentDirectory);
-            if (result) {
-                currentDirectory = newCurrentDirectory;
-                return this;
-            } else {
-                throw new ChangeDirectoryException(String.format("FTP server replied %d", ftpClient.getReplyCode()));
-            }
-        } catch (IOException e) {
-            throw new ChangeDirectoryException(e);
+        boolean result = ftpClient.changeWorkingDirectory(newCurrentDirectory);
+        if (result) {
+            currentDirectory = newCurrentDirectory;
+            return null;
+        } else {
+            throw new RuntimeException(String.format("FTP server replied %d", ftpClient.getReplyCode()));
         }
+    }
+
+    @Override
+    public InputStream getInputStream(@NotNull FTPFile element) throws IOException {
+        return ftpClient.retrieveFileStream(element.getName());
     }
 
     public List<FTPFile> listFiles() throws IOException {
         return Arrays.asList(ftpClient.listFiles());
     }
 
+    @Override
     public String getCurrentDirectory() {
         return currentDirectory;
+    }
+
+    @Override
+    public List<FTPFile> getListedElements() {
+        // todo implement
+        return null;
     }
 
     private String getChildFilePathname(FTPFile childFile) {
@@ -66,5 +76,15 @@ public class FTPStructureController implements StructureController<FTPFile> {
     @Override
     public boolean isDirectory(@NotNull FTPFile element) {
         return element.isDirectory();
+    }
+
+    @Override
+    public boolean isFile(@NotNull FTPFile element) {
+        return element.isFile();
+    }
+
+    @Override
+    public boolean canBeEntered(@NotNull FTPFile element) {
+        return isDirectory(element);
     }
 }
