@@ -1,4 +1,4 @@
-package jet.task.previewer.ui.ftp;
+package jet.task.previewer.ui.ftp.dialog;
 
 import jet.task.previewer.common.StringUtils;
 import jet.task.previewer.ui.Application;

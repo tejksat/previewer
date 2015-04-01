@@ -1,4 +1,4 @@
-package jet.task.previewer.ui.ftp;
+package jet.task.previewer.ui.ftp.dialog;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.jetbrains.annotations.NotNull;

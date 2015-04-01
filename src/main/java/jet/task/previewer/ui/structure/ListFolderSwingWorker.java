@@ -23,7 +23,7 @@ public class ListFolderSwingWorker extends SwingWorker<List<Entry>, List<Entry>>
         this.path = path;
     }
 
-    @Override
+    @Override   
     protected List<Entry> doInBackground() throws Exception {
 /*
         String[] pathElements = folder.getPath();
@@ -55,7 +55,8 @@ public class ListFolderSwingWorker extends SwingWorker<List<Entry>, List<Entry>>
             } else {
                 try {
                     List<Entry> entries = get();
-                    structureList.getModel().updateContent(entries);
+                    // todo commented because of partial commit
+//                    structureList.getModel().updateContent(entries);
                 } catch (InterruptedException e1) {
                     // todo do something
                     e1.printStackTrace();

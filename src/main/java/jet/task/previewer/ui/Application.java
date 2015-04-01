@@ -1,7 +1,7 @@
 package jet.task.previewer.ui;
 
 import jet.task.previewer.model.Entry;
-import jet.task.previewer.ui.ftp.NewFTPSessionDialog;
+import jet.task.previewer.ui.ftp.dialog.NewFTPSessionDialog;
 import jet.task.previewer.ui.preview.PreviewComponent;
 import jet.task.previewer.ui.preview.StructureListSelectionListener;
 import jet.task.previewer.ui.structure.StructureList;
@@ -51,7 +51,8 @@ public class Application extends JFrame implements StatusHolder {
         Container contentPane = new JPanel(new BorderLayout());
         contentPane.add(splitPane, BorderLayout.CENTER);
         // todo refactor (!)
-        structureList.addListSelectionListener(new StructureListSelectionListener(structureList, previewComponent));
+        // todo commented because of partial commit
+//        structureList.addListSelectionListener(new StructureListSelectionListener(structureList, previewComponent));
 
         // tool bar
         JToolBar toolBar = new JToolBar();
@@ -77,7 +78,8 @@ public class Application extends JFrame implements StatusHolder {
         Path picasaExports = FileSystems.getDefault().getPath(System.getenv("userprofile"), "Pictures", "Picasa", "Exports");
         Path testDirectory = FileSystems.getDefault().getPath("C:\\", "a test");
         List<Entry> content = Arrays.asList(Entry.Factory.newFolder(picasaExports), Entry.Factory.newFolder(testDirectory));
-        structureList.getModel().updateContent(content);
+        // todo
+//        structureList.getModel().updateContent(content);
     }
 
     public static void main(String[] args) {
