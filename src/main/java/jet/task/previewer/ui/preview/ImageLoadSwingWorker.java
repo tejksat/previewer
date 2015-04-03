@@ -1,32 +1,31 @@
 package jet.task.previewer.ui.preview;
 
+import jet.task.previewer.ui.engine.DirectoryElement;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 import java.awt.Image;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Alex Koshevoy on 29.03.2015.
  */
 public class ImageLoadSwingWorker extends SwingWorker<Image, Void> {
-    private final Path path;
+    private final DirectoryElement<?> element;
     private final PreviewComponent previewComponent;
 
     private CancelReason cancelReason;
 
-    public ImageLoadSwingWorker(@NotNull Path path, @NotNull PreviewComponent previewComponent) {
-        this.path = path;
+    public ImageLoadSwingWorker(@NotNull DirectoryElement<?> element, @NotNull PreviewComponent previewComponent) {
+        this.element = element;
         this.previewComponent = previewComponent;
     }
 
     @Override
     protected Image doInBackground() throws IOException {
-        return ImageIO.read(Files.newInputStream(path));
+        return ImageIO.read(element.newInputStream());
     }
 
     public void cancelBecausePreviewSelectionChanged() {

@@ -1,7 +1,9 @@
 package jet.task.previewer.ui.structure;
 
 import jet.task.previewer.ui.EventUtils;
-import jet.task.previewer.ui.engine.StructureController;
+import jet.task.previewer.ui.engine.DoneCallback;
+import jet.task.previewer.ui.engine.ResolvedDirectory;
+import jet.task.previewer.ui.engine.DirectoryElement;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.DefaultListModel;
@@ -11,26 +13,36 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.nio.file.Path;
+import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Created by Alex Koshevoy on 28.03.2015.
  */
-public class StructureList extends JList<Object> {
-    private StructureController controller;
+public class StructureList extends JList<DirectoryElement> {
+    private ResolvedDirectory<? extends DirectoryElement> currentDirectory;
 
     public StructureList() {
-        super(new DefaultListModel<Object>());
+        super(new DefaultListModel<DirectoryElement>());
     }
 
     @Override
-    public void setModel(ListModel<Object> model) {
+    public void setModel(ListModel<DirectoryElement> model) {
         throw new UnsupportedOperationException(StructureList.class + " does not support arbitrary model change");
     }
 
-    private void changeStructureSource(@NotNull StructureController controller) {
-        this.controller = controller;
+    public void setCurrentDirectory(@NotNull ResolvedDirectory<?> currentDirectory) {
+        this.currentDirectory = currentDirectory;
+        DefaultListModel<DirectoryElement> model = (DefaultListModel<DirectoryElement>) getModel();
+        model.clear();
+        currentDirectory.getDirectoryContent().forEach(model::addElement);
+    }
+
+    public ResolvedDirectory<DirectoryElement> getCurrentDirectory() {
+        // todo get rid of this cast!
+        return (ResolvedDirectory<DirectoryElement>) currentDirectory;
     }
 
     public static StructureList newInstance() {
@@ -42,7 +54,7 @@ public class StructureList extends JList<Object> {
                 if (EventUtils.isPrimaryActionDoubleClick(e)) {
                     Optional<Integer> listIndex = EventUtils.getListIndexAtPoint(structureList, e.getPoint());
                     if (listIndex.isPresent()) {
-                        Object element = structureList.getModel().getElementAt(listIndex.get());
+                        DirectoryElement element = structureList.getModel().getElementAt(listIndex.get());
                         changeDirectoryExt(structureList, element);
                     }
                 }
@@ -52,7 +64,7 @@ public class StructureList extends JList<Object> {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    Object selectedElement = structureList.getSelectedValue();
+                    DirectoryElement selectedElement = structureList.getSelectedValue();
                     changeDirectoryExt(structureList, selectedElement);
                 }
             }
@@ -60,33 +72,33 @@ public class StructureList extends JList<Object> {
         return structureList;
     }
 
-    private static void changeDirectoryExt(StructureList structureList, Object selectedElement) {
-        if (structureList.controller.isDirectory(selectedElement)) {
-            // todo commented because of partial commit
-/*
-            StructureController newController = structureList.controller.changeDirectory(selectedElement, );
-            changeDirectory(structureList, selectedElement.getPath());
-*/
-        }/* else if (selectedElement instanceof Leaf) {
-            // todo refactor
-            Path path = selectedElement.getPath();
-            if (path.toString().endsWith(".zip")) {
-                try {
-                    FileSystem fileSystem = FileSystems.newFileSystem(path, null);
-                    changeDirectory(structureList, fileSystem.getPath("/"));
-                } catch (IOException e) {
-                    // todo log and show error message (status bar)
-                    e.printStackTrace();
-                }
-            }
-        }*/
+    private static void changeDirectoryExt(StructureList structureList, DirectoryElement selectedElement) {
+        if (selectedElement.canBeResolvedToDirectory()) {
+            changeDirectory(structureList, selectedElement);
+        }
     }
 
-    private static void changeDirectory(StructureList structureList, Path path) {
-        // todo should we disable list in another place (?)
-        structureList.setEnabled(false);
-
-        ListFolderSwingWorker swingWorker = new ListFolderSwingWorker(structureList, path);
-        swingWorker.execute();
+    private static void changeDirectory(StructureList structureList, DirectoryElement selectedElement) {
+        try {
+            structureList.setEnabled(false);
+            selectedElement.resolve(new DoneCallback<ResolvedDirectory<?>>() {
+                @Override
+                public void done(Future<ResolvedDirectory<?>> future) {
+                    try {
+                        structureList.setCurrentDirectory(future.get());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } finally {
+                        structureList.setEnabled(true);
+                    }
+                }
+            });
+        } catch (IOException | RuntimeException e) {
+            // todo
+            e.printStackTrace();
+            structureList.setEnabled(true);
+        }
     }
 }

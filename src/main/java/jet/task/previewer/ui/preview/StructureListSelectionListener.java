@@ -1,23 +1,22 @@
 package jet.task.previewer.ui.preview;
 
-import jet.task.previewer.model.Entry;
+import jet.task.previewer.ui.engine.DirectoryElement;
+import jet.task.previewer.ui.structure.StructureList;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.nio.file.Files;
 
 /**
  * Created by Alex Koshevoy on 29.03.2015.
  */
 public class StructureListSelectionListener implements ListSelectionListener {
-    private final JList<Entry> structureList;
+    private final StructureList structureList;
     private final PreviewComponent previewComponent;
 
     private ImageLoadSwingWorker currentWorker;
 
-    public StructureListSelectionListener(@NotNull JList<Entry> structureList,
+    public StructureListSelectionListener(@NotNull StructureList structureList,
                                           @NotNull PreviewComponent previewComponent) {
         this.structureList = structureList;
         this.previewComponent = previewComponent;
@@ -30,12 +29,12 @@ public class StructureListSelectionListener implements ListSelectionListener {
             currentWorker.cancelBecausePreviewSelectionChanged();
             currentWorker = null;
         }
-        Entry selectedValue = structureList.getSelectedValue();
+        DirectoryElement selectedValue = structureList.getSelectedValue();
         if (selectedValue != null) {
-            if (Files.isDirectory(selectedValue.getPath())) {
+            if (!selectedValue.isFile()) {
                 previewComponent.nothingToPreview();
             } else {
-                currentWorker = new ImageLoadSwingWorker(selectedValue.getPath(), previewComponent);
+                currentWorker = new ImageLoadSwingWorker(selectedValue, previewComponent);
                 currentWorker.execute();
             }
         } else {

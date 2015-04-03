@@ -1,6 +1,6 @@
 package jet.task.previewer.ui.structure;
 
-import jet.task.previewer.ui.engine.StructureController;
+import jet.task.previewer.ui.engine.ResolvedDirectory;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.DefaultListModel;
@@ -8,34 +8,29 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Alex Koshevoy on 01.04.2015.
  */
-public abstract class PathStructureController implements StructureController<Path> {
-    private final DefaultListModel<Path> targetListModel;
+public abstract class PathResolvedDirectory<E extends PathElement> implements ResolvedDirectory<E> {
 
-    private Path currentPath;
+    private final Path currentPath;
 
-    protected List<Path> listedElements;
+    private final List<E> directoryContent;
 
-    protected PathStructureController(@NotNull DefaultListModel<Path> targetListModel) {
-        this.targetListModel = targetListModel;
-    }
-
-    protected final DefaultListModel<Path> getTargetListModel() {
-        return targetListModel;
+    protected PathResolvedDirectory(@NotNull Path currentPath,
+                                    @NotNull List<E> directoryContent) {
+        this.currentPath = currentPath;
+        this.directoryContent = new ArrayList<>(directoryContent);
     }
 
     protected final Path getCurrentPath() {
         return currentPath;
     }
 
-    protected final void setCurrentPath(@NotNull Path currentPath) {
-        this.currentPath = currentPath;
-    }
-
+/*
     @Override
     public boolean isDirectory(@NotNull Path element) {
         return Files.isDirectory(element);
@@ -50,6 +45,7 @@ public abstract class PathStructureController implements StructureController<Pat
     public InputStream getInputStream(@NotNull Path element) throws IOException {
         return Files.newInputStream(element);
     }
+*/
 
     @Override
     public String getCurrentDirectory() {
@@ -57,7 +53,7 @@ public abstract class PathStructureController implements StructureController<Pat
     }
 
     @Override
-    public List<Path> getListedElements() {
-        return listedElements;
+    public List<E> getDirectoryContent() {
+        return directoryContent;
     }
 }

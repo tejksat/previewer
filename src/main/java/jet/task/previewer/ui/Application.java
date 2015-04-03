@@ -1,9 +1,9 @@
 package jet.task.previewer.ui;
 
-import jet.task.previewer.model.Entry;
 import jet.task.previewer.ui.ftp.dialog.NewFTPSessionDialog;
 import jet.task.previewer.ui.preview.PreviewComponent;
 import jet.task.previewer.ui.preview.StructureListSelectionListener;
+import jet.task.previewer.ui.structure.RootsResolvedDirectory;
 import jet.task.previewer.ui.structure.StructureList;
 import org.apache.commons.net.ftp.FTPClient;
 
@@ -19,10 +19,6 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by Alex Koshevoy on 28.03.2015.
@@ -52,7 +48,7 @@ public class Application extends JFrame implements StatusHolder {
         contentPane.add(splitPane, BorderLayout.CENTER);
         // todo refactor (!)
         // todo commented because of partial commit
-//        structureList.addListSelectionListener(new StructureListSelectionListener(structureList, previewComponent));
+        structureList.addListSelectionListener(new StructureListSelectionListener(structureList, previewComponent));
 
         // tool bar
         JToolBar toolBar = new JToolBar();
@@ -74,12 +70,13 @@ public class Application extends JFrame implements StatusHolder {
     }
 
     private void testEntryList(StructureList structureList) {
+/*
 //        Path path = FileSystems.getDefault().getPath("C:\\", "Users", "Александр", "Pictures", "Picasa", "Exports");
         Path picasaExports = FileSystems.getDefault().getPath(System.getenv("userprofile"), "Pictures", "Picasa", "Exports");
         Path testDirectory = FileSystems.getDefault().getPath("C:\\", "a test");
         List<Entry> content = Arrays.asList(Entry.Factory.newFolder(picasaExports), Entry.Factory.newFolder(testDirectory));
-        // todo
-//        structureList.getModel().updateContent(content);
+*/
+        structureList.setCurrentDirectory(new RootsResolvedDirectory());
     }
 
     public static void main(String[] args) {

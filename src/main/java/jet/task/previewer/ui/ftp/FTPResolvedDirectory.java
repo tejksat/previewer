@@ -1,7 +1,8 @@
 package jet.task.previewer.ui.ftp;
 
 import jet.task.previewer.ui.engine.DoneCallback;
-import jet.task.previewer.ui.engine.StructureController;
+import jet.task.previewer.ui.engine.ResolvedDirectory;
+import jet.task.previewer.ui.structure.FTPDirectoryElement;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.jetbrains.annotations.NotNull;
@@ -9,13 +10,14 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 
 /**
  * Created by akoshevoy on 01.04.2015.
  */
-public class FTPStructureController implements StructureController<FTPFile> {
+public class FTPResolvedDirectory implements ResolvedDirectory<FTPDirectoryElement> {
     // todo is it true? always?
     public static final String FTP_DIRECTORY_SEPARATOR = "/";
 
@@ -24,7 +26,7 @@ public class FTPStructureController implements StructureController<FTPFile> {
     private String currentDirectory;
 
 
-    public FTPStructureController(@NotNull FTPClient ftpClient) {
+    public FTPResolvedDirectory(@NotNull FTPClient ftpClient) {
         this.ftpClient = ftpClient;
     }
 
@@ -32,8 +34,10 @@ public class FTPStructureController implements StructureController<FTPFile> {
         return ftpClient.changeToParentDirectory();
     }
 
+/*
     @Override
-    public Future<StructureController<?>> changeDirectory(@NotNull FTPFile directory, @NotNull DoneCallback doneCallback) throws IOException {
+    public Future<ResolvedDirectory<?>> changeDirectory(@NotNull FTPFile directory,
+                                                        @NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException {
         // todo process symbolic links
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException("File " + directory + " is not a directory");
@@ -57,6 +61,7 @@ public class FTPStructureController implements StructureController<FTPFile> {
     public List<FTPFile> listFiles() throws IOException {
         return Arrays.asList(ftpClient.listFiles());
     }
+*/
 
     @Override
     public String getCurrentDirectory() {
@@ -64,15 +69,16 @@ public class FTPStructureController implements StructureController<FTPFile> {
     }
 
     @Override
-    public List<FTPFile> getListedElements() {
+    public List<FTPDirectoryElement> getDirectoryContent() {
         // todo implement
-        return null;
+        return Collections.emptyList();
     }
 
     private String getChildFilePathname(FTPFile childFile) {
         return getCurrentDirectory() + FTP_DIRECTORY_SEPARATOR + childFile.getName();
     }
 
+/*
     @Override
     public boolean isDirectory(@NotNull FTPFile element) {
         return element.isDirectory();
@@ -84,7 +90,8 @@ public class FTPStructureController implements StructureController<FTPFile> {
     }
 
     @Override
-    public boolean canBeEntered(@NotNull FTPFile element) {
+    public boolean canBeResolvedToDirectory(@NotNull FTPFile element) {
         return isDirectory(element);
     }
+*/
 }
