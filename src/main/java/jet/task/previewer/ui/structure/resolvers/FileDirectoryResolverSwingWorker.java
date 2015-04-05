@@ -4,7 +4,6 @@ import jet.task.previewer.ui.engine.DoneCallback;
 import jet.task.previewer.ui.engine.ResolvedDirectory;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -22,11 +21,6 @@ public class FileDirectoryResolverSwingWorker extends ResolverSwingWorker {
     @Override
     protected ResolvedDirectory<?> doInBackground() throws IOException {
         return DirectoryResolverUtils.resolveFileDirectory(path);
-    }
-
-    @Override
-    protected void done() {
-        doneCallback.done(this);
     }
 
     public static FileDirectoryResolverSwingWorker executeNew(@NotNull Path path,

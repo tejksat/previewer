@@ -29,14 +29,14 @@ public class DirectoryResolverUtils {
         return new FileResolvedDirectory(path, directoryContent);
     }
 
-    public static ZipResolvedDirectory resolveZipDirectory(Path path) throws IOException {
+    public static ZipResolvedDirectory resolveZipDirectory(Path path, Path basePath) throws IOException {
         DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
 //        List<Path> directoryContent = StreamSupport.stream(directoryStream.spliterator(), false).collect(Collectors.toList());
         List<ZipElement> directoryContent = new ArrayList<>();
         for (Path child : directoryStream) {
-            directoryContent.add(new ZipElement(child));
+            directoryContent.add(new ZipElement(child, basePath));
         }
-        return new ZipResolvedDirectory(path, directoryContent);
+        return new ZipResolvedDirectory(path, directoryContent, basePath);
     }
 
     public static boolean isZipFile(@NotNull Path element) {

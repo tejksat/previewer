@@ -1,46 +1,107 @@
 package jet.task.previewer.ui.structure;
 
-import jet.task.previewer.ui.engine.DoneCallback;
-import jet.task.previewer.ui.engine.ResolvedDirectory;
 import jet.task.previewer.ui.engine.DirectoryElement;
+import jet.task.previewer.ui.engine.DoneCallback;
+import jet.task.previewer.ui.engine.InputStreamConsumer;
+import jet.task.previewer.ui.engine.ResolvedDirectory;
+import jet.task.previewer.ui.ftp.FTPResolver;
+import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.concurrent.Future;
 
 /**
  * Created by akoshevoy on 03.04.2015.
  */
 public class FTPDirectoryElement implements DirectoryElement<FTPFile> {
+    // todo is it true? always?
+    public static final String FTP_DIRECTORY_SEPARATOR = "/";
+
+    private final FTPClient ftpClient;
+    private final String basePathname;
+    private final FTPFile ftpFile;
+
+    public FTPDirectoryElement(@NotNull FTPClient ftpClient, @NotNull String basePathname, @NotNull FTPFile ftpFile) {
+        this.ftpClient = ftpClient;
+        this.basePathname = basePathname;
+        this.ftpFile = ftpFile;
+    }
+
     @Override
     public boolean isDirectory() {
-        return false;
+        return ftpFile.isDirectory();
     }
 
     @Override
     public boolean isFile() {
-        return false;
+        return ftpFile.isFile();
     }
 
     @Override
     public boolean canBeResolvedToDirectory() {
-        return false;
+        return ftpFile.isDirectory();
     }
 
     @Override
     public Future<ResolvedDirectory<?>> resolve(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException {
-        return null;
+        FTPResolver ftpResolver = new FTPResolver(ftpClient, basePathname + FTP_DIRECTORY_SEPARATOR + ftpFile.getName(), doneCallback);
+        ftpResolver.execute();
+        return ftpResolver;
     }
 
     @Override
     public InputStream newInputStream() throws IOException {
-        return null;
+        InputStream inputStream = ftpClient.retrieveFileStream(ftpFile.getName());
+        if (inputStream == null) {
+            int replyCode = ftpClient.getReplyCode();
+            throw new RuntimeException("Input stream " + ftpFile.getName() + " cannot be opened (FTP server replied " + replyCode + ")");
+        }
+        return inputStream;
+    }
+
+    @Override
+    public <R> R consumeInputStream(InputStreamConsumer<R> consumer) throws IOException {
+        System.err.println("Consume input stream!");
+        InputStream inputStream = ftpClient.retrieveFileStream(ftpFile.getName());
+        if (inputStream == null) {
+            System.err.println(MessageFormat.format("Failed to open input stream for file {0} (FTP reply code {1}, reply string {2})",
+                    ftpFile.getName(), ftpClient.getReplyCode(), ftpClient.getReplyString()));
+
+            int replyCode = ftpClient.getReplyCode();
+            throw new RuntimeException("Input stream " + ftpFile.getName() + " cannot be opened (FTP server replied " + replyCode + ")");
+        }
+        System.out.println(MessageFormat.format("Input stream for file {0} opened (FTP reply code {1}, reply string {2})",
+                ftpFile.getName(), ftpClient.getReplyCode(), ftpClient.getReplyString()));
+        try {
+            return consumer.accept(inputStream);
+        } finally {
+            try {
+                closeQuietly(inputStream);
+            } finally {
+                if (ftpClient.completePendingCommand()) {
+                    System.out.println("Command completed");
+                } else {
+                    // todo what do we need to do?
+                    System.err.println("[TODO close connection?] Complete pending command failed");
+                }
+            }
+        }
+    }
+
+    private static void closeQuietly(InputStream inputStream) {
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            System.err.println("Input stream close failed");
+        }
     }
 
     @Override
     public String getName() {
-        return null;
+        return ftpFile.getName();
     }
 }

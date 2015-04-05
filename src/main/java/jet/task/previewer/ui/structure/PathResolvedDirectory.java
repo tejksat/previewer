@@ -3,10 +3,6 @@ package jet.task.previewer.ui.structure;
 import jet.task.previewer.ui.engine.ResolvedDirectory;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.DefaultListModel;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;

@@ -7,7 +7,6 @@ import jet.task.previewer.ui.structure.resolvers.FileDirectoryResolverSwingWorke
 import jet.task.previewer.ui.structure.resolvers.ZipResolverSwingWorker;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Future;

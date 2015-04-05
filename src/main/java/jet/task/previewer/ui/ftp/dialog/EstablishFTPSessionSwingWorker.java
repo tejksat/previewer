@@ -1,5 +1,7 @@
 package jet.task.previewer.ui.ftp.dialog;
 
+import jet.task.previewer.ui.ftp.FTPClientUtils;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +63,7 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClient, Void>
             replyCode = ftpClient.getReplyCode();
 
             if (!FTPReply.isPositiveCompletion(replyCode)) {
-                disconnectQuietly(ftpClient);
+                FTPClientUtils.disconnectQuietly(ftpClient);
                 throw new FTPConnectionFailedException(replyCode, replyString);
 /*
                 System.err.println("FTP server refused connection.");
@@ -71,7 +73,7 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClient, Void>
 
             if (username != null) {
                 if (!ftpClient.login(username, password)) {
-                    disconnectQuietly(ftpClient);
+                    FTPClientUtils.disconnectQuietly(ftpClient);
                     throw new FTPLoginFailedException();
                 }
             }
@@ -90,18 +92,11 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClient, Void>
         } finally {
             if (error && ftpClient.isConnected()) {
                 // call function that prevent original exception from hiding
-                disconnectQuietly(ftpClient);
+                FTPClientUtils.disconnectQuietly(ftpClient);
             }
         }
+        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         return ftpClient;
-    }
-
-    private void disconnectQuietly(FTPClient ftpClient) {
-        try {
-            ftpClient.disconnect();
-        } catch (IOException ioe) {
-            // do nothing
-        }
     }
 
     @Override

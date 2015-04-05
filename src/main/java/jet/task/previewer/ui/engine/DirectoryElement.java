@@ -18,7 +18,10 @@ public interface DirectoryElement<E> {
 
     Future<ResolvedDirectory<?>> resolve(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException;
 
+    @Deprecated
     InputStream newInputStream() throws IOException;
+
+    <R> R consumeInputStream(InputStreamConsumer<R> consumer) throws IOException;
 
     String getName();
 }

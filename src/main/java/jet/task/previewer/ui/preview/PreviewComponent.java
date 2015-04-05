@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -20,14 +21,24 @@ public class PreviewComponent extends JComponent {
     public static final String PREVIEW_CANCELLED_TEXT = "Cancelled";
 
     private final JLabel informationLabel;
+    private final JTextArea textArea;
     private Image image;
 
     public PreviewComponent() {
         super();
 
         setLayout(new BorderLayout());
-        this.informationLabel = new JLabel(WELCOME_TEXT, SwingConstants.CENTER);
+
+        informationLabel = new JLabel(WELCOME_TEXT, SwingConstants.CENTER);
+
+        textArea = new JTextArea();
+        textArea.setVisible(false);
+        textArea.setEditable(false);
+        // todo (check if JDK bug) uncommenting next line causes application running after closing the dialog
+//        textArea.getCaret().setVisible(true);
+
         add(informationLabel, BorderLayout.CENTER);
+        add(textArea, BorderLayout.CENTER);
     }
 
     public void updateImage(Image image) {
@@ -38,31 +49,44 @@ public class PreviewComponent extends JComponent {
         }
     }
 
-    public void setImage(@NotNull Image image) {
-        this.informationLabel.setVisible(false);
-        this.image = image;
+    public void setImage(@NotNull Image newImage) {
+        informationLabel.setVisible(false);
+        textArea.setVisible(false);
+        textArea.setText(null);
+        image = newImage;
 
         repaint();
-        System.out.println("repaint() called");
+    }
+
+    public void setTextPreview(String text) {
+        informationLabel.setVisible(false);
+        textArea.setVisible(true);
+        textArea.setText(text);
+        image = null;
+
+        repaint();
     }
 
     public void userCancelledPreview() {
         informationLabel.setText(PREVIEW_CANCELLED_TEXT);
-        processImageRemoval();
+        processPreviewRemoval();
     }
 
     public void nothingToPreview() {
         informationLabel.setText(WELCOME_TEXT);
-        processImageRemoval();
+        processPreviewRemoval();
     }
 
     public void imageLoadFailed() {
         informationLabel.setText(IMAGE_LOAD_FAILED_TEXT);
-        processImageRemoval();
+        processPreviewRemoval();
     }
 
-    private void processImageRemoval() {
+    private void processPreviewRemoval() {
         image = null;
+        textArea.setVisible(false);
+        textArea.setText(null);
+
         informationLabel.setVisible(true);
     }
 
@@ -78,12 +102,6 @@ public class PreviewComponent extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        System.out.println("Repaint preview with clip bounds: " + g.getClipBounds());
-        System.out.println("Preview bounds: " + getBounds());
-/*
-        Rectangle bounds = getBounds();
-        g = g.create(bounds.x, bounds.y, bounds.width, bounds.height);
-*/
         if (image != null) {
             Rectangle componentBounds = getBounds();
             if (componentBounds.intersects(g.getClipBounds())) {

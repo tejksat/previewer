@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.util.Arrays;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by Alex Koshevoy on 29.03.2015.
@@ -14,7 +16,7 @@ public class StructureListSelectionListener implements ListSelectionListener {
     private final StructureList structureList;
     private final PreviewComponent previewComponent;
 
-    private ImageLoadSwingWorker currentWorker;
+    private PreviewLoadSwingWorker currentWorker;
 
     public StructureListSelectionListener(@NotNull StructureList structureList,
                                           @NotNull PreviewComponent previewComponent) {
@@ -25,6 +27,9 @@ public class StructureListSelectionListener implements ListSelectionListener {
     @Override
     public void valueChanged(ListSelectionEvent e) {
         // todo do this conditionally?
+        if (e.getValueIsAdjusting()) {
+            return;
+        }
         if (currentWorker != null && !currentWorker.isDone()) {
             currentWorker.cancelBecausePreviewSelectionChanged();
             currentWorker = null;
@@ -34,11 +39,29 @@ public class StructureListSelectionListener implements ListSelectionListener {
             if (!selectedValue.isFile()) {
                 previewComponent.nothingToPreview();
             } else {
-                currentWorker = new ImageLoadSwingWorker(selectedValue, previewComponent);
-                currentWorker.execute();
+                if (hasImageExtension(selectedValue)) {
+                    currentWorker = new ImageLoadSwingWorker(selectedValue, previewComponent);
+                    currentWorker.execute();
+                } else if (hasTextExtension(selectedValue)) {
+                    currentWorker = new TextLoadSwingWorker(selectedValue, previewComponent);
+                    currentWorker.execute();
+                }
             }
         } else {
             previewComponent.nothingToPreview();
         }
+    }
+
+    private static boolean hasImageExtension(DirectoryElement element) {
+        return hasOneOfExtensions(element.getName(), ".gif", ".jpg", ".png");
+    }
+
+    private boolean hasTextExtension(DirectoryElement element) {
+        return hasOneOfExtensions(element.getName(), ".txt", ".ini");
+    }
+
+    private static boolean hasOneOfExtensions(String name, String... extensions) {
+        name = name.toLowerCase();
+        return StreamSupport.stream(Arrays.asList(extensions).spliterator(), false).anyMatch(name::endsWith);
     }
 }

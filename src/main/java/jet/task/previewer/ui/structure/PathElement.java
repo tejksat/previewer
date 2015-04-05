@@ -1,6 +1,7 @@
 package jet.task.previewer.ui.structure;
 
 import jet.task.previewer.ui.engine.DirectoryElement;
+import jet.task.previewer.ui.engine.InputStreamConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -31,6 +32,13 @@ public abstract class PathElement implements DirectoryElement<Path> {
     @Override
     public InputStream newInputStream() throws IOException {
         return Files.newInputStream(path);
+    }
+
+    @Override
+    public <R> R consumeInputStream(InputStreamConsumer<R> consumer) throws IOException {
+        try(InputStream inputStream = Files.newInputStream(path)) {
+            return consumer.accept(inputStream);
+        }
     }
 
     @Override

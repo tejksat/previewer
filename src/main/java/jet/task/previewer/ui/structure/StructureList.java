@@ -1,9 +1,9 @@
 package jet.task.previewer.ui.structure;
 
 import jet.task.previewer.ui.EventUtils;
+import jet.task.previewer.ui.engine.DirectoryElement;
 import jet.task.previewer.ui.engine.DoneCallback;
 import jet.task.previewer.ui.engine.ResolvedDirectory;
-import jet.task.previewer.ui.engine.DirectoryElement;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.DefaultListModel;
@@ -14,6 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -37,7 +38,12 @@ public class StructureList extends JList<DirectoryElement> {
         this.currentDirectory = currentDirectory;
         DefaultListModel<DirectoryElement> model = (DefaultListModel<DirectoryElement>) getModel();
         model.clear();
-        currentDirectory.getDirectoryContent().forEach(model::addElement);
+        List<? extends DirectoryElement> content = currentDirectory.getDirectoryContent();
+        content.forEach(model::addElement);
+        requestFocus();
+        if (!content.isEmpty()) {
+            setSelectedIndex(0);
+        }
     }
 
     public ResolvedDirectory<DirectoryElement> getCurrentDirectory() {
@@ -67,6 +73,9 @@ public class StructureList extends JList<DirectoryElement> {
                     DirectoryElement selectedElement = structureList.getSelectedValue();
                     changeDirectoryExt(structureList, selectedElement);
                 }
+                if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    up(structureList, structureList.getCurrentDirectory());
+                }
             }
         });
         return structureList;
@@ -82,6 +91,33 @@ public class StructureList extends JList<DirectoryElement> {
         try {
             structureList.setEnabled(false);
             selectedElement.resolve(new DoneCallback<ResolvedDirectory<?>>() {
+                @Override
+                public void done(Future<ResolvedDirectory<?>> future) {
+                    try {
+                        structureList.setCurrentDirectory(future.get());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } finally {
+                        structureList.setEnabled(true);
+                    }
+                }
+            });
+        } catch (IOException | RuntimeException e) {
+            // todo
+            e.printStackTrace();
+            structureList.setEnabled(true);
+        }
+    }
+
+    private static void up(StructureList structureList, ResolvedDirectory<?> selectedElement) {
+        if (!selectedElement.hasParent()) {
+            return;
+        }
+        try {
+            structureList.setEnabled(false);
+            selectedElement.resolveParent(new DoneCallback<ResolvedDirectory<?>>() {
                 @Override
                 public void done(Future<ResolvedDirectory<?>> future) {
                     try {

@@ -3,14 +3,9 @@ package jet.task.previewer.ui.ftp;
 import jet.task.previewer.ui.engine.DoneCallback;
 import jet.task.previewer.ui.engine.ResolvedDirectory;
 import jet.task.previewer.ui.structure.FTPDirectoryElement;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -18,20 +13,13 @@ import java.util.concurrent.Future;
  * Created by akoshevoy on 01.04.2015.
  */
 public class FTPResolvedDirectory implements ResolvedDirectory<FTPDirectoryElement> {
-    // todo is it true? always?
-    public static final String FTP_DIRECTORY_SEPARATOR = "/";
+    private final String currentPathname;
+    private final List<FTPDirectoryElement> files;
 
-    private final FTPClient ftpClient;
-
-    private String currentDirectory;
-
-
-    public FTPResolvedDirectory(@NotNull FTPClient ftpClient) {
-        this.ftpClient = ftpClient;
-    }
-
-    public boolean changeToParentDirectory() throws IOException {
-        return ftpClient.changeToParentDirectory();
+    public FTPResolvedDirectory(@NotNull String currentPathname,
+                                @NotNull List<FTPDirectoryElement> files) {
+        this.currentPathname = currentPathname;
+        this.files = files;
     }
 
 /*
@@ -65,20 +53,26 @@ public class FTPResolvedDirectory implements ResolvedDirectory<FTPDirectoryEleme
 
     @Override
     public String getCurrentDirectory() {
-        return currentDirectory;
+        return currentPathname;
     }
 
     @Override
     public List<FTPDirectoryElement> getDirectoryContent() {
-        // todo implement
-        return Collections.emptyList();
+        return files;
     }
 
-    private String getChildFilePathname(FTPFile childFile) {
-        return getCurrentDirectory() + FTP_DIRECTORY_SEPARATOR + childFile.getName();
+    @Override
+    public boolean hasParent() {
+        // todo check if sometimes we DO have // as root pathname
+        return !currentPathname.equals("/");
     }
 
-/*
+    @Override
+    public Future<ResolvedDirectory<?>> resolveParent(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException {
+        throw new RuntimeException("TODO implement");
+    }
+
+    /*
     @Override
     public boolean isDirectory(@NotNull FTPFile element) {
         return element.isDirectory();

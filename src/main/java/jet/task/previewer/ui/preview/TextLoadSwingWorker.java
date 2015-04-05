@@ -3,23 +3,25 @@ package jet.task.previewer.ui.preview;
 import jet.task.previewer.ui.engine.DirectoryElement;
 import org.jetbrains.annotations.NotNull;
 
-import javax.imageio.ImageIO;
-import java.awt.Image;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by Alex Koshevoy on 29.03.2015.
+ * Created by Alex Koshevoy on 04.04.2015.
  */
-public class ImageLoadSwingWorker extends PreviewLoadSwingWorker<Image> {
-    public ImageLoadSwingWorker(@NotNull DirectoryElement<?> element, @NotNull PreviewComponent previewComponent) {
+public class TextLoadSwingWorker extends PreviewLoadSwingWorker<String> {
+    public TextLoadSwingWorker(@NotNull DirectoryElement<?> element, @NotNull PreviewComponent previewComponent) {
         super(element, previewComponent);
     }
 
     @Override
-    protected Image consumeInputStream(InputStream inputStream) throws IOException {
-        return ImageIO.read(inputStream);
+    protected String consumeInputStream(InputStream inputStream) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            return reader.readLine();
+        }
     }
 
     @Override
@@ -35,8 +37,8 @@ public class ImageLoadSwingWorker extends PreviewLoadSwingWorker<Image> {
                         return;
                 }
             } else {
-                Image image = get();
-                previewComponent.updateImage(image);
+                String text = get();
+                previewComponent.setTextPreview(text);
             }
         } catch (InterruptedException e) {
             // todo why this could happen?
