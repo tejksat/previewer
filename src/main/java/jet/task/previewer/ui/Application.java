@@ -1,5 +1,6 @@
 package jet.task.previewer.ui;
 
+import jet.task.previewer.ftp.FTPClientManager;
 import jet.task.previewer.ui.engine.DoneCallback;
 import jet.task.previewer.ui.engine.ResolvedDirectory;
 import jet.task.previewer.ui.ftp.FTPClientUtils;
@@ -18,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -81,10 +83,12 @@ public class Application extends JFrame implements StatusHolder {
                 if (ftpClient == null) {
                     return;
                 }
-                FTPResolver ftpResolver = new FTPResolver(ftpClient, FTP_ROOT_PATHNAME, new DoneCallback<ResolvedDirectory<?>>() {
+                FTPClientManager ftpClientManager = new FTPClientManager(ftpClient);
+                FTPResolver ftpResolver = new FTPResolver(ftpClientManager, FTP_ROOT_PATHNAME, new DoneCallback<ResolvedDirectory<?>>() {
                     @Override
                     public void done(Future<ResolvedDirectory<?>> future) {
                         if (future.isCancelled()) {
+                            // todo do it with manager
                             FTPClientUtils.logoutQuietly(ftpClient);
                         } else {
                             try {
@@ -93,10 +97,12 @@ public class Application extends JFrame implements StatusHolder {
                             } catch (InterruptedException exc) {
                                 // todo process
                                 exc.printStackTrace();
+                                // todo do it with manager
                                 FTPClientUtils.logoutQuietly(ftpClient);
                             } catch (ExecutionException exc) {
                                 // todo process
                                 exc.printStackTrace();
+                                // todo do it with manager
                                 FTPClientUtils.logoutQuietly(ftpClient);
                             }
                         }
@@ -120,12 +126,13 @@ public class Application extends JFrame implements StatusHolder {
     }
 
     public static void main(String[] args) {
-        Application application = new Application();
-//        JFrame application = new JFrame();
-        application.setPreferredSize(new Dimension(500, 500));
-        application.pack();
-        application.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        application.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            Application application = new Application();
+            application.setPreferredSize(new Dimension(500, 500));
+            application.pack();
+            application.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            application.setVisible(true);
+        });
     }
 
     @Override

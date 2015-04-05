@@ -1,17 +1,16 @@
 package jet.task.previewer.ui.structure;
 
+import jet.task.previewer.ftp.FTPClientManager;
 import jet.task.previewer.ui.engine.DirectoryElement;
 import jet.task.previewer.ui.engine.DoneCallback;
 import jet.task.previewer.ui.engine.InputStreamConsumer;
 import jet.task.previewer.ui.engine.ResolvedDirectory;
 import jet.task.previewer.ui.ftp.FTPResolver;
-import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -21,11 +20,13 @@ public class FTPDirectoryElement implements DirectoryElement<FTPFile> {
     // todo is it true? always?
     public static final String FTP_DIRECTORY_SEPARATOR = "/";
 
-    private final FTPClient ftpClient;
+    private final FTPClientManager ftpClient;
     private final String basePathname;
     private final FTPFile ftpFile;
 
-    public FTPDirectoryElement(@NotNull FTPClient ftpClient, @NotNull String basePathname, @NotNull FTPFile ftpFile) {
+    public FTPDirectoryElement(@NotNull FTPClientManager ftpClient,
+                               @NotNull String basePathname,
+                               @NotNull FTPFile ftpFile) {
         this.ftpClient = ftpClient;
         this.basePathname = basePathname;
         this.ftpFile = ftpFile;
@@ -54,18 +55,17 @@ public class FTPDirectoryElement implements DirectoryElement<FTPFile> {
     }
 
     @Override
-    public InputStream newInputStream() throws IOException {
-        InputStream inputStream = ftpClient.retrieveFileStream(ftpFile.getName());
-        if (inputStream == null) {
-            int replyCode = ftpClient.getReplyCode();
-            throw new RuntimeException("Input stream " + ftpFile.getName() + " cannot be opened (FTP server replied " + replyCode + ")");
+    public <R> R consumeInputStream(@NotNull InputStreamConsumer<R> consumer) throws IOException {
+        try {
+            return ftpClient.consumeInputStream(ftpFile.getName(), consumer).get();
+        } catch (InterruptedException e) {
+            // todo ?
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            // todo ?
+            throw new RuntimeException(e);
         }
-        return inputStream;
-    }
-
-    @Override
-    public <R> R consumeInputStream(InputStreamConsumer<R> consumer) throws IOException {
-        System.err.println("Consume input stream!");
+/*
         InputStream inputStream = ftpClient.retrieveFileStream(ftpFile.getName());
         if (inputStream == null) {
             System.err.println(MessageFormat.format("Failed to open input stream for file {0} (FTP reply code {1}, reply string {2})",
@@ -90,8 +90,10 @@ public class FTPDirectoryElement implements DirectoryElement<FTPFile> {
                 }
             }
         }
+*/
     }
 
+/*
     private static void closeQuietly(InputStream inputStream) {
         try {
             inputStream.close();
@@ -99,6 +101,7 @@ public class FTPDirectoryElement implements DirectoryElement<FTPFile> {
             System.err.println("Input stream close failed");
         }
     }
+*/
 
     @Override
     public String getName() {

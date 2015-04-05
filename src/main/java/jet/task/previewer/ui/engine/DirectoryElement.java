@@ -3,7 +3,6 @@ package jet.task.previewer.ui.engine;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.Future;
 
 /**
@@ -17,9 +16,6 @@ public interface DirectoryElement<E> {
     boolean canBeResolvedToDirectory();
 
     Future<ResolvedDirectory<?>> resolve(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException;
-
-    @Deprecated
-    InputStream newInputStream() throws IOException;
 
     <R> R consumeInputStream(InputStreamConsumer<R> consumer) throws IOException;
 

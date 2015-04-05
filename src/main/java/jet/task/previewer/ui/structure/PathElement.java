@@ -30,11 +30,6 @@ public abstract class PathElement implements DirectoryElement<Path> {
     }
 
     @Override
-    public InputStream newInputStream() throws IOException {
-        return Files.newInputStream(path);
-    }
-
-    @Override
     public <R> R consumeInputStream(InputStreamConsumer<R> consumer) throws IOException {
         try(InputStream inputStream = Files.newInputStream(path)) {
             return consumer.accept(inputStream);

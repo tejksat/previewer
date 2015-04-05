@@ -5,6 +5,8 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.SwingWorker;
 import java.io.IOException;
@@ -20,6 +22,8 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClient, Void>
     private String password;
 
     private final FTPConnectionCallback callback;
+
+    private final Logger logger = LoggerFactory.getLogger(EstablishFTPSessionSwingWorker.class);
 
     public EstablishFTPSessionSwingWorker(@NotNull String host,
                                           @NotNull FTPConnectionCallback callback) {
@@ -54,8 +58,8 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClient, Void>
                 // connect with default port
                 ftpClient.connect(host);
             }
-            System.out.println("Connected to " + host + ".");
-            System.out.print(ftpClient.getReplyString());
+
+            logger.debug("Connected to {} ({})", host, ftpClient.getReplyString());
 
             String replyString = ftpClient.getReplyString();
             // After connection attempt, you should check the reply code to verify
@@ -63,12 +67,10 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClient, Void>
             replyCode = ftpClient.getReplyCode();
 
             if (!FTPReply.isPositiveCompletion(replyCode)) {
+                logger.debug("Reply code is not positive {}, disconnecting from {}", ftpClient.getReplyCode(), host);
+
                 FTPClientUtils.disconnectQuietly(ftpClient);
                 throw new FTPConnectionFailedException(replyCode, replyString);
-/*
-                System.err.println("FTP server refused connection.");
-                System.exit(1);
-*/
             }
 
             if (username != null) {
@@ -82,16 +84,13 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClient, Void>
             Thread.sleep(2000L);
 
             // todo transfer files
-
-/*
-            ftp.logout();
-*/
         } catch (IOException | FTPConnectionFailedException | FTPLoginFailedException e) {
             error = true;
+            logger.error("Error has occurred while establishing connection to {}", host, e);
             throw e;
         } finally {
             if (error && ftpClient.isConnected()) {
-                // call function that prevent original exception from hiding
+                logger.info("Disconnecting from {}", host);
                 FTPClientUtils.disconnectQuietly(ftpClient);
             }
         }
