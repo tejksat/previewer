@@ -1,6 +1,6 @@
 package jet.task.previewer.ui.structure;
 
-import jet.task.previewer.ftp.FTPClientManager;
+import jet.task.previewer.ftp.FTPClientSession;
 import jet.task.previewer.ui.engine.DirectoryElement;
 import jet.task.previewer.ui.engine.DoneCallback;
 import jet.task.previewer.ui.engine.InputStreamConsumer;
@@ -20,11 +20,11 @@ public class FTPDirectoryElement implements DirectoryElement<FTPFile> {
     // todo is it true? always?
     public static final String FTP_DIRECTORY_SEPARATOR = "/";
 
-    private final FTPClientManager ftpClient;
+    private final FTPClientSession ftpClient;
     private final String basePathname;
     private final FTPFile ftpFile;
 
-    public FTPDirectoryElement(@NotNull FTPClientManager ftpClient,
+    public FTPDirectoryElement(@NotNull FTPClientSession ftpClient,
                                @NotNull String basePathname,
                                @NotNull FTPFile ftpFile) {
         this.ftpClient = ftpClient;

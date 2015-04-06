@@ -1,6 +1,6 @@
 package jet.task.previewer.ui.ftp;
 
-import jet.task.previewer.ftp.FTPClientManager;
+import jet.task.previewer.ftp.FTPClientSession;
 import jet.task.previewer.ui.engine.DoneCallback;
 import jet.task.previewer.ui.engine.ResolvedDirectory;
 import jet.task.previewer.ui.structure.FTPDirectoryElement;
@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
  * Created by Alex Koshevoy on 04.04.2015.
  */
 public class FTPResolver extends ResolverSwingWorker {
-    private final FTPClientManager ftpClient;
+    private final FTPClientSession ftpClient;
     private final String pathname;
 
-    public FTPResolver(@NotNull FTPClientManager ftpClient, @NotNull String pathname,
+    public FTPResolver(@NotNull FTPClientSession ftpClient, @NotNull String pathname,
                        @NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
         super(doneCallback);
         this.ftpClient = ftpClient;
@@ -37,6 +37,6 @@ public class FTPResolver extends ResolverSwingWorker {
                 .map(child -> new FTPDirectoryElement(ftpClient, pathname, child))
                 .collect(Collectors.toList());
         // we need this check (see FTPClient.listFiles() Javadoc)
-        return new FTPResolvedDirectory(pathname, content);
+        return new FTPResolvedDirectory(ftpClient, pathname, content);
     }
 }

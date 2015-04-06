@@ -1,16 +1,10 @@
 package jet.task.previewer.ui.preview;
 
+import jet.task.previewer.ui.ImageUtils;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Rectangle;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Created by Alex Koshevoy on 28.03.2015.
@@ -24,6 +18,8 @@ public class PreviewComponent extends JComponent {
     private final JTextArea textArea;
     private Image image;
 
+    private final ImageIcon loaderImageIcon = ImageUtils.createImageIcon("/icons/loader.gif", "Loader icon");
+
     public PreviewComponent() {
         super();
 
@@ -34,8 +30,12 @@ public class PreviewComponent extends JComponent {
         textArea = new JTextArea();
         textArea.setVisible(false);
         textArea.setEditable(false);
+
         // todo (check if JDK bug) uncommenting next line causes application running after closing the dialog
 //        textArea.getCaret().setVisible(true);
+
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        textArea.setLineWrap(true);
 
         add(informationLabel, BorderLayout.CENTER);
         add(textArea, BorderLayout.CENTER);
@@ -50,6 +50,8 @@ public class PreviewComponent extends JComponent {
     }
 
     public void setImage(@NotNull Image newImage) {
+        removeAll();
+
         informationLabel.setVisible(false);
         textArea.setVisible(false);
         textArea.setText(null);
@@ -65,6 +67,11 @@ public class PreviewComponent extends JComponent {
         image = null;
 
         repaint();
+    }
+
+    public void loadingPreview() {
+        informationLabel.setIcon(loaderImageIcon);
+        processPreviewRemoval();
     }
 
     public void userCancelledPreview() {
@@ -88,6 +95,9 @@ public class PreviewComponent extends JComponent {
         textArea.setText(null);
 
         informationLabel.setVisible(true);
+
+        revalidate();
+        repaint();
     }
 
     @Override
@@ -108,7 +118,7 @@ public class PreviewComponent extends JComponent {
                 // todo render component within clip bounds
                 int imageWidth = image.getWidth(this);
                 int imageHeight = image.getHeight(this);
-                double scaleFactor = Math.min((double) componentBounds.width / imageWidth, (double) componentBounds.height / imageHeight);
+                double scaleFactor = Math.min(1.0, Math.min((double) componentBounds.width / imageWidth, (double) componentBounds.height / imageHeight));
                 int paintWidth = (int) (imageWidth * scaleFactor);
                 int paintHeight = (int) (imageHeight * scaleFactor);
                 Rectangle paintRectangle = new Rectangle(componentBounds.x + (componentBounds.width - paintWidth) / 2,

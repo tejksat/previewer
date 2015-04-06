@@ -1,29 +1,20 @@
 package jet.task.previewer.ui;
 
-import jet.task.previewer.ftp.FTPClientManager;
+import jet.task.previewer.ftp.FTPClientSession;
 import jet.task.previewer.ui.engine.DoneCallback;
 import jet.task.previewer.ui.engine.ResolvedDirectory;
-import jet.task.previewer.ui.ftp.FTPClientUtils;
 import jet.task.previewer.ui.ftp.FTPResolver;
 import jet.task.previewer.ui.ftp.dialog.NewFTPSessionDialog;
 import jet.task.previewer.ui.preview.PreviewComponent;
 import jet.task.previewer.ui.preview.StructureListSelectionListener;
 import jet.task.previewer.ui.structure.RootsResolvedDirectory;
 import jet.task.previewer.ui.structure.StructureList;
-import org.apache.commons.net.ftp.FTPClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.swing.AbstractAction;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.EtchedBorder;
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -35,6 +26,8 @@ public class Application extends JFrame implements StatusHolder {
 
     public static final String FTP_ROOT_PATHNAME = "/";
     private final JLabel statusBar;
+
+    private final Logger logger = LoggerFactory.getLogger(Application.class);
 
     public Application() {
         // TODO get version from project properties
@@ -79,31 +72,25 @@ public class Application extends JFrame implements StatusHolder {
         toolBar.add(new AbstractAction("FTP Server", ImageUtils.createImageIcon("/icons/toolbar/ftp.png", "FTP Icon")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FTPClient ftpClient = NewFTPSessionDialog.requestFTPClient(Application.this);
+                FTPClientSession ftpClient = NewFTPSessionDialog.requestFTPClient(Application.this);
                 if (ftpClient == null) {
                     return;
                 }
-                FTPClientManager ftpClientManager = new FTPClientManager(ftpClient);
-                FTPResolver ftpResolver = new FTPResolver(ftpClientManager, FTP_ROOT_PATHNAME, new DoneCallback<ResolvedDirectory<?>>() {
+                FTPResolver ftpResolver = new FTPResolver(ftpClient, FTP_ROOT_PATHNAME, new DoneCallback<ResolvedDirectory<?>>() {
                     @Override
                     public void done(Future<ResolvedDirectory<?>> future) {
                         if (future.isCancelled()) {
-                            // todo do it with manager
-                            FTPClientUtils.logoutQuietly(ftpClient);
+                            ftpClient.disconnect();
                         } else {
                             try {
                                 ResolvedDirectory<?> resolvedDirectory = future.get();
                                 structureList.setCurrentDirectory(resolvedDirectory);
                             } catch (InterruptedException exc) {
-                                // todo process
-                                exc.printStackTrace();
-                                // todo do it with manager
-                                FTPClientUtils.logoutQuietly(ftpClient);
+                                logger.error("Root directory resolution has been interrupted", exc);
+                                ftpClient.disconnect();
                             } catch (ExecutionException exc) {
-                                // todo process
-                                exc.printStackTrace();
-                                // todo do it with manager
-                                FTPClientUtils.logoutQuietly(ftpClient);
+                                logger.error("Root directory resolution failed with exception", exc);
+                                ftpClient.disconnect();
                             }
                         }
                     }

@@ -1,24 +1,14 @@
 package jet.task.previewer.ui.ftp.dialog;
 
 import jet.task.previewer.common.StringUtils;
+import jet.task.previewer.ftp.FTPClientSession;
 import jet.task.previewer.ui.Application;
 import jet.task.previewer.ui.StatusHolder;
-import org.apache.commons.net.ftp.FTPClient;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -32,7 +22,7 @@ public class NewFTPSessionDialog extends JDialog {
 
     private StatusHolder statusHolder;
 
-    private FTPClient ftpClient;
+    private FTPClientSession ftpClient;
 
     public NewFTPSessionDialog() {
         this(null);
@@ -124,14 +114,14 @@ public class NewFTPSessionDialog extends JDialog {
         this.statusHolder = statusHolder;
     }
 
-    public FTPClient getFTPClient() {
+    public FTPClientSession getFTPClient() {
         return ftpClient;
     }
 
     // TODO refactor
     private final FTPConnectionCallback callback = new FTPConnectionCallback() {
         @Override
-        public void connectionEstablished(@NotNull FTPClient ftpClient) {
+        public void connectionEstablished(@NotNull FTPClientSession ftpClient) {
             NewFTPSessionDialog.this.ftpClient = ftpClient;
             dispose();
             statusHolder.updateStatus("Connection established");
@@ -157,7 +147,7 @@ public class NewFTPSessionDialog extends JDialog {
         setEnabled(activate);
     }
 
-    public static FTPClient requestFTPClient(@NotNull Application application) {
+    public static FTPClientSession requestFTPClient(@NotNull Application application) {
         NewFTPSessionDialog dialog = new NewFTPSessionDialog(application);
         dialog.setStatusHolder(application);
         dialog.pack();

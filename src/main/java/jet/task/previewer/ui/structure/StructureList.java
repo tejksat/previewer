@@ -6,9 +6,7 @@ import jet.task.previewer.ui.engine.DoneCallback;
 import jet.task.previewer.ui.engine.ResolvedDirectory;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.ListModel;
+import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -39,6 +37,7 @@ public class StructureList extends JList<DirectoryElement> {
         DefaultListModel<DirectoryElement> model = (DefaultListModel<DirectoryElement>) getModel();
         model.clear();
         List<? extends DirectoryElement> content = currentDirectory.getDirectoryContent();
+        // todo this awfully slow (!)
         content.forEach(model::addElement);
         requestFocus();
         if (!content.isEmpty()) {

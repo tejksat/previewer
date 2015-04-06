@@ -40,9 +40,11 @@ public class StructureListSelectionListener implements ListSelectionListener {
                 previewComponent.nothingToPreview();
             } else {
                 if (hasImageExtension(selectedValue)) {
+                    previewComponent.loadingPreview();
                     currentWorker = new ImageLoadSwingWorker(selectedValue, previewComponent);
                     currentWorker.execute();
                 } else if (hasTextExtension(selectedValue)) {
+                    previewComponent.loadingPreview();
                     currentWorker = new TextLoadSwingWorker(selectedValue, previewComponent);
                     currentWorker.execute();
                 }
