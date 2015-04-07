@@ -47,6 +47,8 @@ public class StructureListSelectionListener implements ListSelectionListener {
                     previewComponent.loadingPreview();
                     currentWorker = new TextLoadSwingWorker(selectedValue, previewComponent);
                     currentWorker.execute();
+                } else {
+                    previewComponent.nothingToPreview();
                 }
             }
         } else {

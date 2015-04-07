@@ -22,14 +22,14 @@ import java.util.concurrent.Future;
 /**
  * Created by Alex Koshevoy on 28.03.2015.
  */
-public class Application extends JFrame implements StatusHolder {
+public class ApplicationWindow extends JFrame implements StatusHolder {
 
     public static final String FTP_ROOT_PATHNAME = "/";
     private final JLabel statusBar;
 
-    private final Logger logger = LoggerFactory.getLogger(Application.class);
+    private final Logger logger = LoggerFactory.getLogger(ApplicationWindow.class);
 
-    public Application() {
+    public ApplicationWindow() {
         // TODO get version from project properties
         super("Jet PreViewer 1.0");
 
@@ -72,7 +72,7 @@ public class Application extends JFrame implements StatusHolder {
         toolBar.add(new AbstractAction("FTP Server", ImageUtils.createImageIcon("/icons/toolbar/ftp.png", "FTP Icon")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FTPClientSession ftpClient = NewFTPSessionDialog.requestFTPClient(Application.this);
+                FTPClientSession ftpClient = NewFTPSessionDialog.requestFTPClient(ApplicationWindow.this);
                 if (ftpClient == null) {
                     return;
                 }
@@ -110,16 +110,6 @@ public class Application extends JFrame implements StatusHolder {
 
     private void testEntryList(StructureList structureList) {
         structureList.setCurrentDirectory(new RootsResolvedDirectory());
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Application application = new Application();
-            application.setPreferredSize(new Dimension(500, 500));
-            application.pack();
-            application.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-            application.setVisible(true);
-        });
     }
 
     @Override

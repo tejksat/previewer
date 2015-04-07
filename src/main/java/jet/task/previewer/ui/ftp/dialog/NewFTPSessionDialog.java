@@ -2,7 +2,7 @@ package jet.task.previewer.ui.ftp.dialog;
 
 import jet.task.previewer.common.StringUtils;
 import jet.task.previewer.ftp.FTPClientSession;
-import jet.task.previewer.ui.Application;
+import jet.task.previewer.ui.ApplicationWindow;
 import jet.task.previewer.ui.StatusHolder;
 import org.jetbrains.annotations.NotNull;
 
@@ -147,9 +147,9 @@ public class NewFTPSessionDialog extends JDialog {
         setEnabled(activate);
     }
 
-    public static FTPClientSession requestFTPClient(@NotNull Application application) {
-        NewFTPSessionDialog dialog = new NewFTPSessionDialog(application);
-        dialog.setStatusHolder(application);
+    public static FTPClientSession requestFTPClient(@NotNull ApplicationWindow applicationWindow) {
+        NewFTPSessionDialog dialog = new NewFTPSessionDialog(applicationWindow);
+        dialog.setStatusHolder(applicationWindow);
         dialog.pack();
         dialog.setVisible(true);
         return dialog.getFTPClient();

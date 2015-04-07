@@ -13,6 +13,7 @@ public class PreviewComponent extends JComponent {
     public static final String WELCOME_TEXT = "Select a file";
     public static final String IMAGE_LOAD_FAILED_TEXT = "Image load failed";
     public static final String PREVIEW_CANCELLED_TEXT = "Cancelled";
+    public static final String LOADING_PREVIEW_TEXT = "Loading preview...";
 
     private final JLabel informationLabel;
     private final JTextArea textArea;
@@ -34,7 +35,7 @@ public class PreviewComponent extends JComponent {
         // todo (check if JDK bug) uncommenting next line causes application running after closing the dialog
 //        textArea.getCaret().setVisible(true);
 
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         textArea.setLineWrap(true);
 
         add(informationLabel, BorderLayout.CENTER);
@@ -50,45 +51,67 @@ public class PreviewComponent extends JComponent {
     }
 
     public void setImage(@NotNull Image newImage) {
-        removeAll();
+        clearScreen();
 
-        informationLabel.setVisible(false);
-        textArea.setVisible(false);
-        textArea.setText(null);
         image = newImage;
 
-        repaint();
+        updateScreen();
     }
 
     public void setTextPreview(String text) {
-        informationLabel.setVisible(false);
-        textArea.setVisible(true);
-        textArea.setText(text);
-        image = null;
+        clearScreen();
 
+        textArea.setText(text);
+        add(textArea, BorderLayout.CENTER);
+
+        updateScreen();
+    }
+
+    private void clearScreen() {
+        image = null;
+        removeAll();
+    }
+
+    private void updateScreen() {
+        revalidate();
         repaint();
     }
 
     public void loadingPreview() {
-        informationLabel.setIcon(loaderImageIcon);
-        processPreviewRemoval();
+        showInformation(loaderImageIcon);
     }
 
     public void userCancelledPreview() {
-        informationLabel.setText(PREVIEW_CANCELLED_TEXT);
-        processPreviewRemoval();
+        showInformation(PREVIEW_CANCELLED_TEXT);
     }
 
     public void nothingToPreview() {
-        informationLabel.setText(WELCOME_TEXT);
-        processPreviewRemoval();
+        showInformation(WELCOME_TEXT);
     }
 
     public void imageLoadFailed() {
-        informationLabel.setText(IMAGE_LOAD_FAILED_TEXT);
-        processPreviewRemoval();
+        showInformation(IMAGE_LOAD_FAILED_TEXT);
     }
 
+    private void showInformation(String text) {
+        showInformation(null, text);
+    }
+
+    private void showInformation(ImageIcon icon) {
+        showInformation(icon, null);
+    }
+
+    private void showInformation(Icon icon, String text) {
+        clearScreen();
+
+        informationLabel.setIcon(icon);
+        informationLabel.setText(text);
+        add(informationLabel, BorderLayout.CENTER);
+
+        updateScreen();
+    }
+
+/*
     private void processPreviewRemoval() {
         image = null;
         textArea.setVisible(false);
@@ -99,6 +122,7 @@ public class PreviewComponent extends JComponent {
         revalidate();
         repaint();
     }
+*/
 
     @Override
     public Dimension getPreferredSize() {

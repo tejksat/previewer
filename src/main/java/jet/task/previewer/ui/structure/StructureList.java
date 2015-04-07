@@ -12,7 +12,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -21,10 +20,8 @@ import java.util.concurrent.Future;
  * Created by Alex Koshevoy on 28.03.2015.
  */
 public class StructureList extends JList<DirectoryElement> {
-    private ResolvedDirectory<? extends DirectoryElement> currentDirectory;
-
     public StructureList() {
-        super(new DefaultListModel<DirectoryElement>());
+        super(new StructureListModel());
     }
 
     @Override
@@ -32,22 +29,21 @@ public class StructureList extends JList<DirectoryElement> {
         throw new UnsupportedOperationException(StructureList.class + " does not support arbitrary model change");
     }
 
+    public StructureListModel getThisModel() {
+        return (StructureListModel) getModel();
+    }
+
     public void setCurrentDirectory(@NotNull ResolvedDirectory<?> currentDirectory) {
-        this.currentDirectory = currentDirectory;
-        DefaultListModel<DirectoryElement> model = (DefaultListModel<DirectoryElement>) getModel();
-        model.clear();
-        List<? extends DirectoryElement> content = currentDirectory.getDirectoryContent();
-        // todo this awfully slow (!)
-        content.forEach(model::addElement);
+        StructureListModel model = getThisModel();
+        model.setCurrentDirectory(currentDirectory);
         requestFocus();
-        if (!content.isEmpty()) {
+        if (!model.isEmpty()) {
             setSelectedIndex(0);
         }
     }
 
-    public ResolvedDirectory<DirectoryElement> getCurrentDirectory() {
-        // todo get rid of this cast!
-        return (ResolvedDirectory<DirectoryElement>) currentDirectory;
+    public ResolvedDirectory<?> getCurrentDirectory() {
+        return getThisModel().getCurrentDirectory();
     }
 
     public static StructureList newInstance() {
@@ -59,7 +55,7 @@ public class StructureList extends JList<DirectoryElement> {
                 if (EventUtils.isPrimaryActionDoubleClick(e)) {
                     Optional<Integer> listIndex = EventUtils.getListIndexAtPoint(structureList, e.getPoint());
                     if (listIndex.isPresent()) {
-                        DirectoryElement element = structureList.getModel().getElementAt(listIndex.get());
+                        DirectoryElement element = structureList.getThisModel().getElementAt(listIndex.get());
                         changeDirectoryExt(structureList, element);
                     }
                 }
