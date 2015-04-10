@@ -3,10 +3,11 @@ package jet.task.previewer.ui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 /**
- * Created by akoshevoy on 07.04.2015.
+ * Contain utility methods to apply fancy Swing Look and Feel.
  */
 public class LookAndFeelUtils {
     public static final String NIMBUS_LAF_NAME = "Nimbus";
@@ -17,19 +18,16 @@ public class LookAndFeelUtils {
     }
 
     public static void enableNimbusLookAndFeel() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                        if (NIMBUS_LAF_NAME.equals(info.getName())) {
-                            UIManager.setLookAndFeel(info.getClassName());
-                            break;
-                        }
+        SwingUtilities.invokeLater(() -> {
+            try {
+                for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                    if (NIMBUS_LAF_NAME.equals(info.getName())) {
+                        UIManager.setLookAndFeel(info.getClassName());
+                        break;
                     }
-                } catch (Exception e) {
-                    logger.error("Unable to set {} look and feel for Swing", NIMBUS_LAF_NAME, e);
                 }
+            } catch (Exception e) {
+                logger.error("Unable to set {} look and feel for Swing", NIMBUS_LAF_NAME, e);
             }
         });
     }

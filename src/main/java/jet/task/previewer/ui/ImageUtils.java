@@ -2,6 +2,8 @@ package jet.task.previewer.ui;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.ImageIcon;
 import java.awt.Image;
@@ -9,9 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Alex Koshevoy on 05.04.2015.
+ * Utility methods for loading images.
  */
 public class ImageUtils {
+    private final static Logger logger = LoggerFactory.getLogger(ImageUtils.class);
+
     private ImageUtils() {
     }
 
@@ -21,8 +25,7 @@ public class ImageUtils {
         if (imgURL != null) {
             return new ImageIcon(imgURL, description);
         } else {
-            // todo log appropriately
-            System.err.println("Couldn't find file: " + path);
+            logger.error("Couldn't find image icon file: {}", path);
             return null;
         }
     }

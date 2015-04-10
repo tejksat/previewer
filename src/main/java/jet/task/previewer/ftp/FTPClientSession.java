@@ -1,8 +1,7 @@
 package jet.task.previewer.ftp;
 
+import jet.task.previewer.api.InputStreamConsumer;
 import jet.task.previewer.common.FileUtils;
-import jet.task.previewer.ui.engine.InputStreamConsumer;
-import jet.task.previewer.ui.ftp.FTPClientUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -21,31 +20,36 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Alex Koshevoy on 05.04.2015.
+ * Encapsulates work with {@link FTPClient}.
+ * <p>
+ * {@link FTPClient} is not thread-safe and we have to deal with it carefully to process incoming requests in a serial
+ * way.
  */
 public class FTPClientSession {
     private final FTPClient ftpClient;
+    /**
+     * Executor service for processing FTP commands in a serial way.
+     */
     private final ExecutorService executorService;
 
+    /**
+     * Weak reference to a last consuming future, which we could cancel if new consumer is here.
+     */
     private volatile WeakReference<Future<?>> lastConsumingFuture;
 
     private final Logger logger = LoggerFactory.getLogger(FTPClientSession.class);
 
     public FTPClientSession() {
-        this(new FTPClient());
-    }
-
-    @Deprecated
-    public FTPClientSession(@NotNull FTPClient ftpClient) {
-        this.ftpClient = ftpClient;
+        this.ftpClient = new FTPClient();
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
     public void connect(@NotNull String hostname, @NotNull Optional<Integer> port) throws IOException, FTPConnectionFailedException {
         if (ftpClient.isConnected()) {
-            throw new IllegalStateException("Connected to FTP server");
+            throw new IllegalStateException("Already connected to FTP server");
         }
         if (port.isPresent()) {
             ftpClient.connect(hostname, port.get());
@@ -53,14 +57,14 @@ public class FTPClientSession {
             ftpClient.connect(hostname);
         }
         // connected but we have not checked reply yet
-        logger.debug("Connected to {}", hostname);
+        logger.debug("Connected to [{}]", hostname);
         int replyCode = ftpClient.getReplyCode();
         String replyString = ftpClient.getReplyString();
         if (!FTPReply.isPositiveCompletion(replyCode)) {
             if (replyString == null) {
-                logger.warn("Connection failed: server replied with code {}, disconnecting from {}", replyCode, hostname);
+                logger.warn("Connection to [{}] failed: server replied with code [{}]; disconnecting", hostname, replyCode);
             } else {
-                logger.warn("Connection failed: server replied with code {} and string {}, disconnecting from {}", replyCode, replyString, hostname);
+                logger.warn("Connection to [{}] failed: server replied with code [{}] and message [{}]; disconnecting", hostname, replyCode, replyString);
             }
             FTPClientUtils.disconnectQuietly(ftpClient);
             throw new FTPConnectionFailedException(replyCode, replyString);
@@ -90,33 +94,25 @@ public class FTPClientSession {
     }
 
     @NotNull
-    public Future<List<FTPFile>> changeToParentDirectory() {
-        return getListFuture("parent", ftpClient::changeToParentDirectory);
-    }
-
-    @NotNull
     private Future<List<FTPFile>> getListFuture(@NotNull String pathname, Callable<Boolean> command) {
         logger.debug("Changing working directory to {}", pathname);
-        return executorService.submit(new Callable<List<FTPFile>>() {
-            @Override
-            public List<FTPFile> call() throws Exception {
-                try {
-                    if (command.call()) {
-                        logger.debug("Working directory changed to {}", pathname);
-                        // if FTPClient.listFiles() throws an exception it is unrecoverable
-                        logger.debug("Listing files in directory {}", pathname);
-                        FTPFile[] ftpFiles = ftpClient.listFiles();
-                        logger.debug("Files in directory {} listed", pathname);
-                        return Arrays.asList(ftpFiles);
-                    } else {
-                        logger.warn("Unable to change working directory to {} ({})", pathname,
-                                FTPClientUtils.getServerReplyInformation(ftpClient));
-                        throw new FTPChangeDirectoryFailedException(ftpClient.getReplyCode(), ftpClient.getReplyString());
-                    }
-                } catch (IOException e) {
-                    logger.error("Failed to change working directory to {}", pathname, e);
-                    throw e;
+        return executorService.submit(() -> {
+            try {
+                if (command.call()) {
+                    logger.debug("Working directory changed to {}", pathname);
+                    // if FTPClient.listFiles() throws an exception it is unrecoverable
+                    logger.debug("Listing files in directory {}", pathname);
+                    FTPFile[] ftpFiles = ftpClient.listFiles();
+                    logger.debug("Files in directory {} listed", pathname);
+                    return Arrays.asList(ftpFiles);
+                } else {
+                    logger.warn("Unable to change working directory to {} ({})", pathname,
+                            FTPClientUtils.getServerReplyInformation(ftpClient));
+                    throw new FTPChangeDirectoryFailedException(ftpClient.getReplyCode(), ftpClient.getReplyString());
                 }
+            } catch (IOException e) {
+                logger.error("Failed to change working directory to {}", pathname, e);
+                throw e;
             }
         });
     }
@@ -130,20 +126,17 @@ public class FTPClientSession {
                 lastConsumingFuture = null;
             }
         }
-        Future<V> future = executorService.submit(new Callable<V>() {
-            @Override
-            public V call() throws IOException, FTPFileRetrievalException {
-                InputStream inputStream = ftpClient.retrieveFileStream(pathname);
-                if (inputStream == null) {
-                    logger.warn("Unable to retrieve input stream for remote file {} ({})", pathname, FTPClientUtils.getServerReplyInformation(ftpClient));
-                    throw new FTPFileRetrievalException(ftpClient.getReplyCode(), ftpClient.getReplyString());
-                } else {
-                    try {
-                        return consume.accept(inputStream);
-                    } finally {
-                        FileUtils.closeQuietly(inputStream);
-                        FTPClientUtils.completePendingCommandQuietly(ftpClient);
-                    }
+        Future<V> future = executorService.submit(() -> {
+            InputStream inputStream = ftpClient.retrieveFileStream(pathname);
+            if (inputStream == null) {
+                logger.warn("Unable to retrieve input stream for remote file {} ({})", pathname, FTPClientUtils.getServerReplyInformation(ftpClient));
+                throw new FTPFileRetrievalException(ftpClient.getReplyCode(), ftpClient.getReplyString());
+            } else {
+                try {
+                    return consume.accept(inputStream);
+                } finally {
+                    FileUtils.closeQuietly(inputStream);
+                    FTPClientUtils.completePendingCommandQuietly(ftpClient);
                 }
             }
         });
@@ -151,8 +144,16 @@ public class FTPClientSession {
         return future;
     }
 
-    public void disconnect() {
-        // todo do we need to logout?
-        FTPClientUtils.disconnectQuietly(ftpClient);
+    public void close() {
+        try {
+            executorService.shutdown();
+            if (!executorService.awaitTermination(5L, TimeUnit.SECONDS)) {
+                logger.error("Timeout occurred on shutting down {} executor service", FTPClientSession.class.getName());
+            }
+        } catch (InterruptedException e) {
+            logger.error("Interrupted on close", e);
+        } finally {
+            FTPClientUtils.disconnectQuietly(ftpClient);
+        }
     }
 }

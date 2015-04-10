@@ -1,8 +1,15 @@
 package jet.task.previewer.ui;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
- * Created by Alex Koshevoy on 30.03.2015.
+ * Something that have informational status that could be updated.
  */
 public interface StatusHolder {
-    void updateStatus(String status);
+    /**
+     * Updates informational status.
+     *
+     * @param status new status string
+     */
+    void updateStatus(@Nullable String status);
 }

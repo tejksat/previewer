@@ -1,7 +1,9 @@
 package jet.task.previewer.ftp;
 
 /**
- * Created by Alex Koshevoy on 05.04.2015.
+ * Indicates an error occurred on changing working directory of FTP server.
+ *
+ * @see org.apache.commons.net.ftp.FTPClient#changeWorkingDirectory(String)
  */
 public class FTPChangeDirectoryFailedException extends FTPCommandFailedException {
     public FTPChangeDirectoryFailedException(int replyCode, String replyString) {
