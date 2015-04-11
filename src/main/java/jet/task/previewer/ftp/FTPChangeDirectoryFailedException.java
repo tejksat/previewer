@@ -1,7 +1,7 @@
 package jet.task.previewer.ftp;
 
 /**
- * Indicates an error occurred on changing working directory of FTP server.
+ * Thrown if an error occurred on changing working directory of FTP server.
  *
  * @see org.apache.commons.net.ftp.FTPClient#changeWorkingDirectory(String)
  */

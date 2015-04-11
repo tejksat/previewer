@@ -3,6 +3,7 @@ package jet.task.previewer.ui.main;
 import jet.task.previewer.api.ResolvedDirectory;
 import jet.task.previewer.api.fs.RootsResolvedDirectory;
 import jet.task.previewer.api.ftp.FTPResolver;
+import jet.task.previewer.common.FileSystemUtils;
 import jet.task.previewer.common.StringUtils;
 import jet.task.previewer.ftp.FTPClientSession;
 import jet.task.previewer.ftp.FTPClientUtils;
@@ -97,7 +98,7 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
         toolBar.add(new AbstractAction(HOME_ACTION_LABEL, ImageUtils.createImageIcon(HOME_ICON, "Home")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Path userHomePath = StringUtils.getUserHomePath();
+                Path userHomePath = FileSystemUtils.getUserHomePath();
                 if (userHomePath == null) {
                     JOptionPane.showMessageDialog(ApplicationWindow.this, "We don't know were you home folder is :(", "Oops", JOptionPane.INFORMATION_MESSAGE);
                 } else {

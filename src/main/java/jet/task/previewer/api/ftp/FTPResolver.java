@@ -1,8 +1,8 @@
 package jet.task.previewer.api.ftp;
 
-import jet.task.previewer.api.AbstractSwingResolver;
 import jet.task.previewer.api.DoneCallback;
 import jet.task.previewer.api.ResolvedDirectory;
+import jet.task.previewer.api.SwingWorkerResolver;
 import jet.task.previewer.ftp.FTPClientSession;
 import org.apache.commons.net.ftp.FTPFile;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Alex Koshevoy on 04.04.2015.
  */
-public class FTPResolver extends AbstractSwingResolver {
+public class FTPResolver extends SwingWorkerResolver {
     private final FTPClientSession ftpClient;
     private final String pathname;
 

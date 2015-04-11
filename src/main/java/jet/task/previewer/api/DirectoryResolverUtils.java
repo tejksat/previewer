@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by akoshevoy on 03.04.2015.
+ * Utility methods for resolving fs and zip directories contents.
  */
 public class DirectoryResolverUtils {
     private DirectoryResolverUtils() {
     }
 
-    public static FileResolvedDirectory resolveFileDirectory(Path path) throws IOException {
+    public static FileResolvedDirectory resolveFileDirectory(@NotNull Path path) throws IOException {
         DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
         List<FileElement> directoryContent = new ArrayList<>();
         for (Path child : directoryStream) {
@@ -29,7 +29,7 @@ public class DirectoryResolverUtils {
         return new FileResolvedDirectory(path, directoryContent);
     }
 
-    public static ZipResolvedDirectory resolveZipDirectory(Path path, Path basePath) throws IOException {
+    public static ZipResolvedDirectory resolveZipDirectory(@NotNull Path path, @NotNull Path basePath) throws IOException {
         DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
 //        List<Path> directoryContent = StreamSupport.stream(directoryStream.spliterator(), false).collect(Collectors.toList());
         List<ZipElement> directoryContent = new ArrayList<>();
@@ -40,7 +40,6 @@ public class DirectoryResolverUtils {
     }
 
     public static boolean isZipFile(@NotNull Path element) {
-        // todo may use isReadable()
         return Files.isRegularFile(element) && element.getFileName().toString().endsWith(FileResolvedDirectory.ZIP_FILE_EXTENSION);
     }
 }

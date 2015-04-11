@@ -5,7 +5,7 @@ import jet.task.previewer.common.StringUtils;
 import java.text.MessageFormat;
 
 /**
- * Indicates that FTP server replied with negative reply code.
+ * Thrown if FTP server replied with negative reply code.
  *
  * @see org.apache.commons.net.ftp.FTPReply
  */

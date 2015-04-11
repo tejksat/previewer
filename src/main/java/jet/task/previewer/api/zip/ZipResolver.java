@@ -1,9 +1,9 @@
 package jet.task.previewer.api.zip;
 
-import jet.task.previewer.api.AbstractSwingResolver;
 import jet.task.previewer.api.DirectoryResolverUtils;
 import jet.task.previewer.api.DoneCallback;
 import jet.task.previewer.api.ResolvedDirectory;
+import jet.task.previewer.api.SwingWorkerResolver;
 import jet.task.previewer.api.fs.FileResolvedDirectory;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +14,7 @@ import java.nio.file.Path;
 /**
  * Created by akoshevoy on 03.04.2015.
  */
-public class ZipResolver extends AbstractSwingResolver {
+public class ZipResolver extends SwingWorkerResolver {
     private final Path element;
 
     private ZipResolver(@NotNull Path element,

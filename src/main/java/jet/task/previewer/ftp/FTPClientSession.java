@@ -1,7 +1,7 @@
 package jet.task.previewer.ftp;
 
 import jet.task.previewer.api.InputStreamConsumer;
-import jet.task.previewer.common.FileUtils;
+import jet.task.previewer.common.FileSystemUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -135,7 +135,7 @@ public class FTPClientSession {
                 try {
                     return consume.accept(inputStream);
                 } finally {
-                    FileUtils.closeQuietly(inputStream);
+                    FileSystemUtils.closeQuietly(inputStream);
                     FTPClientUtils.completePendingCommandQuietly(ftpClient);
                 }
             }

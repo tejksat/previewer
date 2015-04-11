@@ -1,18 +1,18 @@
 package jet.task.previewer.api.fs;
 
-import jet.task.previewer.api.AbstractSwingResolver;
 import jet.task.previewer.api.DirectoryResolverUtils;
 import jet.task.previewer.api.DoneCallback;
 import jet.task.previewer.api.ResolvedDirectory;
+import jet.task.previewer.api.SwingWorkerResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Created by akoshevoy on 03.04.2015.
+ * Resolves file directory specified by {@link Path}.
  */
-public class FileDirectoryResolver extends AbstractSwingResolver {
+public class FileDirectoryResolver extends SwingWorkerResolver {
     private final Path path;
 
     private FileDirectoryResolver(@NotNull Path path, @NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {

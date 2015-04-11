@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Created by Alex Koshevoy on 04.04.2015.
  */
-public class PreResolvedResolver extends AbstractSwingResolver {
+public class PreResolvedResolver extends SwingWorkerResolver {
     private final ResolvedDirectory<?> resolvedDirectory;
 
     private PreResolvedResolver(@NotNull ResolvedDirectory<?> resolvedDirectory,

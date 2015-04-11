@@ -2,11 +2,8 @@ package jet.task.previewer.common;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-
 /**
- * Created by Alex Koshevoy on 30.03.2015.
+ * Utility methods for dealing with strings.
  */
 public class StringUtils {
     private StringUtils() {
@@ -23,10 +20,5 @@ public class StringUtils {
     @Nullable
     public static String defaultIfEmpty(@Nullable String string, @Nullable String defaultString) {
         return isNotEmpty(string) ? string : defaultString;
-    }
-
-    public static Path getUserHomePath() {
-        String userHome = System.getProperty("user.home");
-        return userHome == null ? null : FileSystems.getDefault().getPath(userHome);
     }
 }

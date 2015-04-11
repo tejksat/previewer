@@ -1,7 +1,7 @@
 package jet.task.previewer.ftp;
 
 /**
- * Indicates an error occurred on remote file stream retrieval.
+ * Thrown if an error occurred on remote file stream retrieval.
  *
  * @see org.apache.commons.net.ftp.FTPClient#retrieveFileStream(String)
  */
