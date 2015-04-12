@@ -7,7 +7,7 @@ import jet.task.previewer.common.FileSystemUtils;
 import jet.task.previewer.common.StringUtils;
 import jet.task.previewer.ftp.FTPClientSession;
 import jet.task.previewer.ftp.FTPClientUtils;
-import jet.task.previewer.ui.DispatchThreadUtils;
+import jet.task.previewer.ui.EventDispatchThreadUtils;
 import jet.task.previewer.ui.ImageUtils;
 import jet.task.previewer.ui.StatusHolder;
 import jet.task.previewer.ui.components.preview.PreviewComponent;
@@ -120,11 +120,11 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
         contentPane.add(statusBar, BorderLayout.SOUTH);
 
         // actions on close
-        addWindowStateListener(new WindowAdapter() {
+        addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
                 // clean resources
-                structureList.disposeResources();
+                structureList.disposeCurrentDirectoryResources();
             }
         });
 
@@ -160,6 +160,6 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
 
     @Override
     public void updateStatus(@Nullable String status) {
-        DispatchThreadUtils.invokeASAP(() -> statusBar.setText(StringUtils.defaultIfEmpty(status, EMPTY_STATUS_TEXT)));
+        EventDispatchThreadUtils.invokeASAP(() -> statusBar.setText(StringUtils.defaultIfEmpty(status, EMPTY_STATUS_TEXT)));
     }
 }

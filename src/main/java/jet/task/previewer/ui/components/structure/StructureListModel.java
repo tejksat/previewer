@@ -24,28 +24,35 @@ public class StructureListModel extends AbstractListModel<DirectoryElement> {
         return currentDirectory;
     }
 
-    public void setCurrentDirectory(ResolvedDirectory<?> currentDirectory) {
+    public void disposeCurrentDirectoryResources() {
+        setCurrentDirectory(null, true);
+    }
+
+    public void setCurrentDirectory(ResolvedDirectory<?> currentDirectory, boolean disposeResources) {
         int oldSize = getSize();
-        clearCurrentDirectory();
+        clearCurrentDirectory(disposeResources);
         if (oldSize > 0) {
             fireIntervalRemoved(this, 0, oldSize - 1);
         }
-        updateCurrentDirectory(currentDirectory);
+        updateCurrentDirectory(currentDirectory, disposeResources);
         int newSize = getSize();
         if (newSize > 0) {
             fireIntervalAdded(this, 0, newSize);
         }
     }
 
-    private void clearCurrentDirectory() {
-        this.currentDirectory = null;
-        this.sortedContent = null;
+    private void clearCurrentDirectory(boolean disposeResources) {
+        if (currentDirectory != null && disposeResources) {
+            currentDirectory.dispose();
+        }
+        currentDirectory = null;
+        sortedContent = null;
     }
 
-    private void updateCurrentDirectory(ResolvedDirectory<?> currentDirectory) {
+    private void updateCurrentDirectory(ResolvedDirectory<?> currentDirectory, boolean disposeResources) {
         if (currentDirectory == null) {
             // excessive
-            clearCurrentDirectory();
+            clearCurrentDirectory(disposeResources);
         } else {
             List<DirectoryElement> sortedContent = new ArrayList<>();
             sortedContent.addAll(currentDirectory.getContent());

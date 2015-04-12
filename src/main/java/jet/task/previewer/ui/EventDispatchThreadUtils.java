@@ -3,10 +3,10 @@ package jet.task.previewer.ui;
 import javax.swing.SwingUtilities;
 
 /**
- * Utility methods for convenient work with dispatch thread.
+ * Utility methods for convenient work with event dispatch thread.
  */
-public class DispatchThreadUtils {
-    private DispatchThreadUtils() {
+public class EventDispatchThreadUtils {
+    private EventDispatchThreadUtils() {
     }
 
     /**

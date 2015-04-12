@@ -3,6 +3,7 @@ package jet.task.previewer.ui.components.structure;
 import jet.task.previewer.api.DirectoryElement;
 import jet.task.previewer.api.ResolvedDirectory;
 import jet.task.previewer.api.fs.FileDirectoryResolver;
+import jet.task.previewer.ui.EventDispatchThreadUtils;
 import jet.task.previewer.ui.EventUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by Alex Koshevoy on 28.03.2015.
+ * List component that shows directory content.
  */
 public class StructureList extends JList<DirectoryElement> {
     private final Logger logger = LoggerFactory.getLogger(StructureList.class);
@@ -34,26 +35,35 @@ public class StructureList extends JList<DirectoryElement> {
         throw new UnsupportedOperationException(StructureList.class + " does not support arbitrary model change");
     }
 
-    public StructureListModel getThisModel() {
+    private StructureListModel getThisModel() {
         return (StructureListModel) getModel();
     }
 
     public void updateCurrentDirectory(@NotNull ResolvedDirectory<?> currentDirectory) {
+        updateCurrentDirectory(currentDirectory, true);
+    }
+
+    private void updateCurrentDirectory(@NotNull ResolvedDirectory<?> currentDirectory, boolean disposeResources) {
         StructureListModel model = getThisModel();
-        model.setCurrentDirectory(currentDirectory);
+        model.setCurrentDirectory(currentDirectory, disposeResources);
         requestFocus();
         if (!model.isEmpty()) {
             setSelectedIndex(0);
         }
     }
 
-    public void disposeResources() {
-        ResolvedDirectory<?> currentDirectory = getCurrentDirectory();
-        if (currentDirectory != null) {
-            currentDirectory.dispose();
-        }
+    /**
+     * Disposes resources used by current resolved directory.
+     */
+    public void disposeCurrentDirectoryResources() {
+        getThisModel().disposeCurrentDirectoryResources();
     }
 
+    /**
+     * Returns current resolved directory.
+     *
+     * @return current resolved directory
+     */
     public ResolvedDirectory<?> getCurrentDirectory() {
         return getThisModel().getCurrentDirectory();
     }
@@ -68,7 +78,7 @@ public class StructureList extends JList<DirectoryElement> {
                     Optional<Integer> listIndex = EventUtils.getListIndexAtPoint(structureList, e.getPoint());
                     if (listIndex.isPresent()) {
                         DirectoryElement element = structureList.getThisModel().getElementAt(listIndex.get());
-                        structureList.changeDirectoryExt(element);
+                        structureList.browseDirectoryIfResolvable(element);
                     }
                 }
             }
@@ -78,7 +88,7 @@ public class StructureList extends JList<DirectoryElement> {
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     DirectoryElement selectedElement = structureList.getSelectedValue();
-                    structureList.changeDirectoryExt(selectedElement);
+                    structureList.browseDirectoryIfResolvable(selectedElement);
                 }
                 if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
                     structureList.moveUp();
@@ -88,18 +98,18 @@ public class StructureList extends JList<DirectoryElement> {
         return structureList;
     }
 
-    private void changeDirectoryExt(DirectoryElement selectedElement) {
+    private void browseDirectoryIfResolvable(@NotNull DirectoryElement selectedElement) {
         if (selectedElement.canBeResolvedToDirectory()) {
-            changeDirectory(selectedElement);
+            browseDirectory(selectedElement);
         }
     }
 
-    private void changeDirectory(@NotNull DirectoryElement selectedElement) {
+    private void browseDirectory(@NotNull DirectoryElement selectedElement) {
         setEnabled(false);
         try {
             selectedElement.resolve(future -> {
                 try {
-                    updateCurrentDirectory(future.get());
+                    updateCurrentDirectory(future.get(), false);
                 } catch (InterruptedException e) {
                     logger.debug("Changing directory to [{}] has been interrupted", selectedElement.getName(), e);
                 } catch (ExecutionException e) {
@@ -114,19 +124,19 @@ public class StructureList extends JList<DirectoryElement> {
         }
     }
 
+    /**
+     * Changes current directory to its parent directory if the latter exists.
+     */
     public void moveUp() {
-        moveUp(getCurrentDirectory());
-    }
-
-    private void moveUp(@NotNull ResolvedDirectory<?> selectedElement) {
-        if (!selectedElement.hasParent()) {
+        ResolvedDirectory<?> currentDirectory = getCurrentDirectory();
+        if (currentDirectory == null || !currentDirectory.hasParent()) {
             return;
         }
-        setEnabled(false);
+        EventDispatchThreadUtils.invokeASAP(() -> setEnabled(false));
         try {
-            selectedElement.resolveParent(future -> {
+            currentDirectory.resolveParent(future -> {
                 try {
-                    updateCurrentDirectory(future.get());
+                    updateCurrentDirectory(future.get(), false);
                 } catch (InterruptedException e) {
                     logger.debug("Changing current directory to parent directory has been interrupted", e);
                 } catch (ExecutionException e) {
@@ -141,11 +151,16 @@ public class StructureList extends JList<DirectoryElement> {
         }
     }
 
+    /**
+     * Resolves specified directory and updates current directory if resolution succeeded.
+     *
+     * @param path new current file system directory
+     */
     public void setCurrentFileSystemPath(@NotNull Path path) {
-        setEnabled(false);
+        EventDispatchThreadUtils.invokeASAP(() -> setEnabled(false));
         FileDirectoryResolver.submit(path, future -> {
             try {
-                updateCurrentDirectory(future.get());
+                updateCurrentDirectory(future.get(), true);
             } catch (InterruptedException e) {
                 logger.debug("Changing current directory to [{}] has been interrupted", path, e);
             } catch (ExecutionException e) {

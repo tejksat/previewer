@@ -5,6 +5,8 @@ import jet.task.previewer.api.ResolvedDirectory;
 import jet.task.previewer.ftp.FTPClientSession;
 import jet.task.previewer.ftp.FTPClientUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,14 +16,16 @@ import java.util.concurrent.Future;
  * Created by akoshevoy on 01.04.2015.
  */
 public class FTPResolvedDirectory implements ResolvedDirectory<FTPDirectoryElement> {
-    private final FTPClientSession ftpClient;
+    private final FTPClientSession ftpClientSession;
     private final String currentPathname;
     private final List<FTPDirectoryElement> files;
 
-    public FTPResolvedDirectory(@NotNull FTPClientSession ftpClient,
+    private final Logger logger = LoggerFactory.getLogger(FTPResolvedDirectory.class);
+
+    public FTPResolvedDirectory(@NotNull FTPClientSession ftpClientSession,
                                 @NotNull String currentPathname,
                                 @NotNull List<FTPDirectoryElement> files) {
-        this.ftpClient = ftpClient;
+        this.ftpClientSession = ftpClientSession;
         this.currentPathname = currentPathname;
         this.files = files;
     }
@@ -43,11 +47,12 @@ public class FTPResolvedDirectory implements ResolvedDirectory<FTPDirectoryEleme
 
     @Override
     public Future<ResolvedDirectory<?>> resolveParent(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException {
-        return FTPResolver.submit(ftpClient, FTPClientUtils.getParentPathname(currentPathname), doneCallback);
+        return FTPResolver.submit(ftpClientSession, FTPClientUtils.getParentPathname(currentPathname), doneCallback);
     }
 
     @Override
     public void dispose() {
-        ftpClient.close();
+        logger.debug("Closing FTP client session");
+        ftpClientSession.close();
     }
 }
