@@ -13,7 +13,7 @@ import jet.task.previewer.ui.StatusHolder;
 import jet.task.previewer.ui.components.preview.PreviewComponent;
 import jet.task.previewer.ui.components.preview.StructureListSelectionListener;
 import jet.task.previewer.ui.components.structure.StructureList;
-import jet.task.previewer.ui.dialogs.ftp.NewFTPSessionDialog;
+import jet.task.previewer.ui.dialogs.ftp.OriginateFTPClientSessionDialog;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,7 +132,7 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
     }
 
     private void showNewFTPSessionDialog(StructureList structureList) {
-        FTPClientSession ftpClient = NewFTPSessionDialog.requestFTPClient(ApplicationWindow.this);
+        FTPClientSession ftpClient = OriginateFTPClientSessionDialog.requestFTPClient(ApplicationWindow.this);
         if (ftpClient == null) {
             return;
         }

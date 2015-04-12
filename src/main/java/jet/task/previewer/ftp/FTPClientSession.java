@@ -47,7 +47,8 @@ public class FTPClientSession {
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
-    public void connect(@NotNull String hostname, @NotNull Optional<Integer> port) throws IOException, FTPConnectionFailedException {
+    public void connect(@NotNull String hostname, @NotNull Optional<Integer> port)
+            throws IOException, FTPConnectionFailedException {
         if (ftpClient.isConnected()) {
             throw new IllegalStateException("Already connected to FTP server");
         }

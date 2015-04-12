@@ -14,15 +14,13 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class NewFTPSessionDialog extends JDialog {
+public class OriginateFTPClientSessionDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonConnect;
     private JButton buttonCancel;
@@ -32,32 +30,23 @@ public class NewFTPSessionDialog extends JDialog {
 
     private StatusHolder statusHolder;
 
-    private FTPClientSession ftpClient;
+    private FTPClientSession ftpClientSession;
 
-    public NewFTPSessionDialog() {
+    public OriginateFTPClientSessionDialog() {
         this(null);
     }
 
-    public NewFTPSessionDialog(Frame owner) {
+    public OriginateFTPClientSessionDialog(Frame owner) {
         super(owner, "New FTP Session");
 
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonConnect);
 
-        buttonConnect.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
+        buttonConnect.addActionListener(e -> onOK());
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener(e -> onCancel());
 
-// call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -65,34 +54,29 @@ public class NewFTPSessionDialog extends JDialog {
             }
         });
 
-// call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPane.registerKeyboardAction(e -> onCancel(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
     private void onOK() {
-// add your code here
         connect();
     }
 
     private void connect() {
         String address = addressTextField.getText();
         int delimiter = address.lastIndexOf(":");
-        EstablishFTPSessionSwingWorker worker;
+        FTPClientSessionOriginator worker;
         if (delimiter == -1) {
-            worker = new EstablishFTPSessionSwingWorker(address, callback);
+            worker = new FTPClientSessionOriginator(address, callback);
         } else {
             String host = address.substring(0, delimiter);
             // todo catch NumberFormatException
             int port = Integer.valueOf(address.substring(delimiter + 1));
-            worker = new EstablishFTPSessionSwingWorker(host, port, callback);
+            worker = new FTPClientSessionOriginator(host, port, callback);
         }
         String username = userTextField.getText();
         if (StringUtils.isNotEmpty(username)) {
-            // todo more security with passwordField?
             worker.setCredentials(username, new String(passwordField.getPassword()));
         }
         worker.execute();
@@ -101,19 +85,17 @@ public class NewFTPSessionDialog extends JDialog {
     }
 
     private void onCancel() {
-// add your code here if necessary
         dispose();
     }
 
     public static void main(String[] args) {
-        NewFTPSessionDialog dialog = new NewFTPSessionDialog();
+        OriginateFTPClientSessionDialog dialog = new OriginateFTPClientSessionDialog();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
     }
 
     private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 
     private Collection<JComponent> getActiveComponents() {
@@ -124,15 +106,14 @@ public class NewFTPSessionDialog extends JDialog {
         this.statusHolder = statusHolder;
     }
 
-    public FTPClientSession getFTPClient() {
-        return ftpClient;
+    public FTPClientSession getFTPClientSession() {
+        return ftpClientSession;
     }
 
-    // TODO refactor
-    private final FTPConnectionCallback callback = new FTPConnectionCallback() {
+    private final FTPClientSessionOriginator.FTPConnectionCallback callback = new FTPClientSessionOriginator.FTPConnectionCallback() {
         @Override
-        public void connectionEstablished(@NotNull FTPClientSession ftpClient) {
-            NewFTPSessionDialog.this.ftpClient = ftpClient;
+        public void connectionEstablished(@NotNull FTPClientSession ftpClientSession) {
+            OriginateFTPClientSessionDialog.this.ftpClientSession = ftpClientSession;
             dispose();
             statusHolder.updateStatus("Connection established");
         }
@@ -158,10 +139,10 @@ public class NewFTPSessionDialog extends JDialog {
     }
 
     public static FTPClientSession requestFTPClient(@NotNull ApplicationWindow applicationWindow) {
-        NewFTPSessionDialog dialog = new NewFTPSessionDialog(applicationWindow);
+        OriginateFTPClientSessionDialog dialog = new OriginateFTPClientSessionDialog(applicationWindow);
         dialog.setStatusHolder(applicationWindow);
         dialog.pack();
         dialog.setVisible(true);
-        return dialog.getFTPClient();
+        return dialog.getFTPClientSession();
     }
 }

@@ -13,9 +13,10 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by Alex Koshevoy on 29.03.2015.
+ * Connecting to FTP server and logging in to establish new FTP session. Caller uses {@link FTPConnectionCallback}
+ * to handle connection results.
  */
-public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClientSession, Void> {
+public class FTPClientSessionOriginator extends SwingWorker<FTPClientSession, Void> {
     private final String hostname;
     private final Integer port;
     private String username;
@@ -23,18 +24,18 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClientSession
 
     private final FTPConnectionCallback callback;
 
-    private final Logger logger = LoggerFactory.getLogger(EstablishFTPSessionSwingWorker.class);
+    private final Logger logger = LoggerFactory.getLogger(FTPClientSessionOriginator.class);
 
-    public EstablishFTPSessionSwingWorker(@NotNull String hostname,
-                                          @NotNull FTPConnectionCallback callback) {
+    public FTPClientSessionOriginator(@NotNull String hostname,
+                                      @NotNull FTPConnectionCallback callback) {
         this.hostname = hostname;
         this.port = null;
         this.callback = callback;
     }
 
-    public EstablishFTPSessionSwingWorker(@NotNull String hostname,
-                                          @NotNull Integer port,
-                                          @NotNull FTPConnectionCallback callback) {
+    public FTPClientSessionOriginator(@NotNull String hostname,
+                                      @NotNull Integer port,
+                                      @NotNull FTPConnectionCallback callback) {
         this.hostname = hostname;
         this.port = port;
         this.callback = callback;
@@ -76,5 +77,32 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClientSession
                 callback.connectionFailed();
             }
         }
+    }
+
+    /**
+     * Callback to be implemented.
+     */
+    public interface FTPConnectionCallback {
+        /**
+         * Called when connection successfully established.
+         *
+         * @param ftpClientSession {@link FTPClientSession} to be used
+         */
+        void connectionEstablished(@NotNull FTPClientSession ftpClientSession);
+
+        /**
+         * Called when connection failed (either IO exception occurred or FTP server replied with negative code).
+         *
+         * @see org.apache.commons.net.ftp.FTPClient#connect(String)
+         * @see org.apache.commons.net.ftp.FTPClient#connect(String, int)
+         */
+        void connectionFailed();
+
+        /**
+         * Called when login failed.
+         *
+         * @see org.apache.commons.net.ftp.FTPClient#login(String, String)
+         */
+        void loginFailed();
     }
 }
