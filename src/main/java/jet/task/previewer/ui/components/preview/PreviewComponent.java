@@ -2,6 +2,7 @@ package jet.task.previewer.ui.components.preview;
 
 import jet.task.previewer.ui.ImageUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -17,11 +18,13 @@ import java.awt.Image;
 import java.awt.Rectangle;
 
 /**
- * Created by Alex Koshevoy on 28.03.2015.
+ * Component for displaying text and image files previews. It is also able to display loading in-progress status with
+ * {@link #loadingPreview()} method.
  */
 public class PreviewComponent extends JComponent {
     public static final String WELCOME_TEXT = "Select a file";
     public static final String IMAGE_LOAD_FAILED_TEXT = "Image load failed";
+    public static final String TEXT_LOAD_FAILED_TEXT = "Text load failed";
     public static final String PREVIEW_CANCELLED_TEXT = "Cancelled";
 
     private final JLabel informationLabel;
@@ -38,28 +41,32 @@ public class PreviewComponent extends JComponent {
         informationLabel = new JLabel(WELCOME_TEXT, SwingConstants.CENTER);
 
         textArea = new JTextArea();
-        textArea.setVisible(false);
         textArea.setEditable(false);
-
-        // todo (check if JDK bug) uncommenting next line causes application running after closing the dialog
-//        textArea.getCaret().setVisible(true);
-
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         textArea.setLineWrap(true);
 
         add(informationLabel, BorderLayout.CENTER);
-        add(textArea, BorderLayout.CENTER);
     }
 
-    public void updateImage(Image image) {
+    /**
+     * Convenient method to show image preview if it is present or informational text if provided {@code image} is null.
+     *
+     * @param image image to be previewed, may be {@code null}
+     */
+    public void updateImagePreview(@Nullable Image image) {
         if (image == null) {
             nothingToPreview();
         } else {
-            setImage(image);
+            setImagePreview(image);
         }
     }
 
-    public void setImage(@NotNull Image newImage) {
+    /**
+     * Shows image preview.
+     *
+     * @param newImage image to be shown
+     */
+    public void setImagePreview(@NotNull Image newImage) {
         clearScreen();
 
         image = newImage;
@@ -67,6 +74,11 @@ public class PreviewComponent extends JComponent {
         updateScreen();
     }
 
+    /**
+     * Shows text preview.
+     *
+     * @param text text to be shown
+     */
     public void setTextPreview(String text) {
         clearScreen();
 
@@ -86,6 +98,9 @@ public class PreviewComponent extends JComponent {
         repaint();
     }
 
+    /**
+     * Shows loader animation.
+     */
     public void loadingPreview() {
         showInformation(loaderImageIcon);
     }
@@ -98,8 +113,18 @@ public class PreviewComponent extends JComponent {
         showInformation(WELCOME_TEXT);
     }
 
+    /**
+     * Depicts image load failed state.
+     */
     public void imageLoadFailed() {
         showInformation(IMAGE_LOAD_FAILED_TEXT);
+    }
+
+    /**
+     * Depicts text load failed state.
+     */
+    public void textLoadFailed() {
+        showInformation(TEXT_LOAD_FAILED_TEXT);
     }
 
     private void showInformation(String text) {

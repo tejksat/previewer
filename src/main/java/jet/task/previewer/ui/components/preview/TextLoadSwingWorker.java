@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
  * Created by Alex Koshevoy on 04.04.2015.
  */
 public class TextLoadSwingWorker extends PreviewLoadSwingWorker<String> {
-    public static final int BUFFER_SIZE = 1024;
+    public static final int BUFFER_SIZE = 2048;
 
     public TextLoadSwingWorker(@NotNull DirectoryElement element, @NotNull PreviewComponent previewComponent) {
         super(element, previewComponent);
@@ -36,8 +36,8 @@ public class TextLoadSwingWorker extends PreviewLoadSwingWorker<String> {
 
     @Override
     protected void executionFailed(ExecutionException e) {
-        // todo text load failed (!)
-        previewComponent.imageLoadFailed();
+        logger.warn("Text load failed", e);
+        previewComponent.textLoadFailed();
     }
 
     @Override

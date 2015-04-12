@@ -37,6 +37,6 @@ public class ImageLoadSwingWorker extends PreviewLoadSwingWorker<Image> {
 
     @Override
     protected void executionSucceeded(Image result) {
-        previewComponent.updateImage(result);
+        previewComponent.updateImagePreview(result);
     }
 }
