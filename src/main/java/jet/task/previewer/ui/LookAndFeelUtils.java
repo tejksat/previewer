@@ -27,7 +27,7 @@ public class LookAndFeelUtils {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Unable to set {} look and feel for Swing", NIMBUS_LAF_NAME, e);
+                logger.error("Unable to set [{}] look and feel for Swing", NIMBUS_LAF_NAME, e);
             }
         });
     }

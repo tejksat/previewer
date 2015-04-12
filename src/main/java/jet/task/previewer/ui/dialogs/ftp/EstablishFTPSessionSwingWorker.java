@@ -52,7 +52,7 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClientSession
         try {
             ftpClientSession.login(username, password);
         } catch (IOException | FTPLoginFailedException e) {
-            logger.warn("Disconnecting after failed attempt to login to {} with username {}", hostname, username);
+            logger.warn("Disconnecting after failed attempt to login to [{}] with username [{}]", hostname, username);
             ftpClientSession.close();
             throw e;
         }
@@ -65,7 +65,7 @@ public class EstablishFTPSessionSwingWorker extends SwingWorker<FTPClientSession
             FTPClientSession ftpClient = get();
             callback.connectionEstablished(ftpClient);
         } catch (InterruptedException e) {
-            logger.debug("Connection to {} has been interrupted", hostname, e);
+            logger.debug("Connection to [{}] has been interrupted", hostname, e);
             callback.connectionFailed();
         } catch (ExecutionException e) {
             if (e.getCause() instanceof FTPConnectionFailedException) {

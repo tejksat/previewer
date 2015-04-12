@@ -23,7 +23,7 @@ public class ImageLoadSwingWorker extends PreviewLoadSwingWorker<Image> {
     protected Image consumeInputStream(InputStream inputStream) throws IOException {
         BufferedImage image = ImageIO.read(inputStream);
         if (image == null) {
-            logger.warn("Unsupported image format for file {}", element.getName());
+            logger.warn("Unsupported image format of file [{}]", element.getName());
             throw new UnsupportedImageFormatException();
         }
         return image;

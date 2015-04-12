@@ -72,7 +72,7 @@ public class FTPClientSession {
         try {
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
         } catch (IOException e) {
-            logger.error("Failed to change server file type to binary, disconnecting from {}", hostname);
+            logger.error("Failed to change server file type to binary, disconnecting from [{}]", hostname);
             FTPClientUtils.disconnectQuietly(ftpClient);
             throw e;
         }
@@ -129,7 +129,7 @@ public class FTPClientSession {
         Future<V> future = executorService.submit(() -> {
             InputStream inputStream = ftpClient.retrieveFileStream(pathname);
             if (inputStream == null) {
-                logger.warn("Unable to retrieve input stream for remote file {} ({})", pathname, FTPClientUtils.getServerReplyInformation(ftpClient));
+                logger.warn("Unable to retrieve input stream for remote file [{}] ({})", pathname, FTPClientUtils.getServerReplyInformation(ftpClient));
                 throw new FTPFileRetrievalException(ftpClient.getReplyCode(), ftpClient.getReplyString());
             } else {
                 try {
@@ -148,7 +148,7 @@ public class FTPClientSession {
         try {
             executorService.shutdown();
             if (!executorService.awaitTermination(5L, TimeUnit.SECONDS)) {
-                logger.error("Timeout occurred on shutting down {} executor service", FTPClientSession.class.getName());
+                logger.error("Timeout occurred on shutting down [{}] executor service", FTPClientSession.class.getName());
             }
         } catch (InterruptedException e) {
             logger.error("Interrupted on close", e);

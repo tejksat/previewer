@@ -31,7 +31,7 @@ public abstract class PreviewLoadSwingWorker<T> extends SwingWorker<T, Void> {
     protected final T doInBackground() throws IOException {
         return element.consumeInputStream(inputStream -> {
             T t = consumeInputStream(inputStream);
-            logger.info("Ready to preview {}", element.getName());
+            logger.info("Ready to preview [{}]", element.getName());
             return t;
         });
     }

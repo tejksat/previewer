@@ -59,10 +59,10 @@ public class FTPDirectoryElement implements DirectoryElement {
         try {
             return ftpClient.consumeInputStream(ftpFile.getName(), consumer).get();
         } catch (InterruptedException e) {
-            logger.debug("Input stream consumption for {} has been interrupted", pathname, e);
+            logger.trace("Input stream consumption for [{}] has been interrupted", ftpFile.getName(), e);
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
-            logger.debug("Input stream consumption for {} failed with exception", pathname, e.getCause());
+            logger.error("Input stream consumption for [{}] failed with exception", ftpFile.getName(), e.getCause());
             throw new RuntimeException(e);
         }
     }

@@ -25,7 +25,7 @@ public class ImageUtils {
         if (imgURL != null) {
             return new ImageIcon(imgURL, description);
         } else {
-            logger.error("Couldn't find image icon file: {}", path);
+            logger.error("Couldn't find image icon file [{}]", path);
             return null;
         }
     }
