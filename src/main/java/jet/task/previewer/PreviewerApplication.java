@@ -8,7 +8,7 @@ import javax.swing.WindowConstants;
 import java.awt.Dimension;
 
 /**
- * Created by akoshevoy on 07.04.2015.
+ * Main class for the task.
  */
 public class PreviewerApplication {
     public static void main(String[] args) {
