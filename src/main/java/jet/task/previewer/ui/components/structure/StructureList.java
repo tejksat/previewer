@@ -5,6 +5,8 @@ import jet.task.previewer.api.ResolvedDirectory;
 import jet.task.previewer.api.fs.FileDirectoryResolver;
 import jet.task.previewer.ui.EventUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JList;
 import javax.swing.ListModel;
@@ -21,6 +23,8 @@ import java.util.concurrent.ExecutionException;
  * Created by Alex Koshevoy on 28.03.2015.
  */
 public class StructureList extends JList<DirectoryElement> {
+    private final Logger logger = LoggerFactory.getLogger(StructureList.class);
+
     public StructureList() {
         super(new StructureListModel());
     }
@@ -90,23 +94,22 @@ public class StructureList extends JList<DirectoryElement> {
         }
     }
 
-    private void changeDirectory(DirectoryElement selectedElement) {
+    private void changeDirectory(@NotNull DirectoryElement selectedElement) {
+        setEnabled(false);
         try {
-            setEnabled(false);
             selectedElement.resolve(future -> {
                 try {
                     updateCurrentDirectory(future.get());
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.debug("Changing directory to [{}] has been interrupted", selectedElement.getName(), e);
                 } catch (ExecutionException e) {
-                    e.printStackTrace();
+                    logger.error("Changing directory to [{}] failed with exception", selectedElement.getName(), e);
                 } finally {
                     setEnabled(true);
                 }
             });
         } catch (IOException | RuntimeException e) {
-            // todo
-            e.printStackTrace();
+            logger.error("Failed to change directory to [{}]", selectedElement.getName(), e);
             setEnabled(true);
         }
     }
@@ -115,48 +118,41 @@ public class StructureList extends JList<DirectoryElement> {
         moveUp(getCurrentDirectory());
     }
 
-    private void moveUp(ResolvedDirectory<?> selectedElement) {
+    private void moveUp(@NotNull ResolvedDirectory<?> selectedElement) {
         if (!selectedElement.hasParent()) {
             return;
         }
+        setEnabled(false);
         try {
-            setEnabled(false);
             selectedElement.resolveParent(future -> {
                 try {
                     updateCurrentDirectory(future.get());
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.debug("Changing current directory to parent directory has been interrupted", e);
                 } catch (ExecutionException e) {
-                    e.printStackTrace();
+                    logger.error("Changing current directory to parent directory failed with exception", e);
                 } finally {
                     setEnabled(true);
                 }
             });
         } catch (IOException | RuntimeException e) {
-            // todo
-            e.printStackTrace();
+            logger.error("Changing current directory to parent directory failed with exception", e);
             setEnabled(true);
         }
     }
 
-    public void setCurrentFileSystemPath(Path path) {
-        try {
-            setEnabled(false);
-            FileDirectoryResolver.submit(path, future -> {
-                try {
-                    updateCurrentDirectory(future.get());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } finally {
-                    setEnabled(true);
-                }
-            });
-        } catch (RuntimeException e) {
-            // todo
-            e.printStackTrace();
-            setEnabled(true);
-        }
+    public void setCurrentFileSystemPath(@NotNull Path path) {
+        setEnabled(false);
+        FileDirectoryResolver.submit(path, future -> {
+            try {
+                updateCurrentDirectory(future.get());
+            } catch (InterruptedException e) {
+                logger.debug("Changing current directory to [{}] has been interrupted", path, e);
+            } catch (ExecutionException e) {
+                logger.error("Changing current directory to [{}] failed with exception", path, e);
+            } finally {
+                setEnabled(true);
+            }
+        });
     }
 }
