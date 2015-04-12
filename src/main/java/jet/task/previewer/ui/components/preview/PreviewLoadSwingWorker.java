@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by Alex Koshevoy on 29.03.2015.
+ * Common class for loading image and text file previews.
  */
 public abstract class PreviewLoadSwingWorker<T> extends SwingWorker<T, Void> {
     protected final DirectoryElement element;

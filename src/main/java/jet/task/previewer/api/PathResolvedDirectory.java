@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Alex Koshevoy on 01.04.2015.
+ * Common class for {@link Path} based directories.
  */
 public abstract class PathResolvedDirectory<E extends PathElement> implements ResolvedDirectory<E> {
 

@@ -12,7 +12,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 /**
- * Created by akoshevoy on 03.04.2015.
+ * Resolves ZIP archive as directory.
  */
 public class ZipResolver extends SwingWorkerResolver {
     private final Path element;

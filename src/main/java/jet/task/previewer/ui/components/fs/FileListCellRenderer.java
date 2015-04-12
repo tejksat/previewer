@@ -1,4 +1,4 @@
-package jet.task.previewer.ui.components.structure;
+package jet.task.previewer.ui.components.fs;
 
 import jet.task.previewer.api.DirectoryElement;
 import jet.task.previewer.ui.ImageUtils;
@@ -9,13 +9,13 @@ import javax.swing.JList;
 import java.awt.Component;
 
 /**
- * Created by Alex Koshevoy on 28.03.2015.
+ * Renders file list element with its name and appropriate icon.
  */
-public class StructureCellRenderer extends DefaultListCellRenderer {
+public class FileListCellRenderer extends DefaultListCellRenderer {
     private final ImageIcon directoryIcon;
     private final ImageIcon fileIcon;
 
-    public StructureCellRenderer() {
+    public FileListCellRenderer() {
         directoryIcon = ImageUtils.createImageIcon("/icons/fs/directory.png", "File icon");
         fileIcon = ImageUtils.createImageIcon("/icons/fs/file.png", "File icon");
     }

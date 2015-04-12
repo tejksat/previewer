@@ -1,4 +1,4 @@
-package jet.task.previewer.ui.components.structure;
+package jet.task.previewer.ui.components.fs;
 
 import jet.task.previewer.api.DirectoryElement;
 import jet.task.previewer.api.ResolvedDirectory;
@@ -9,9 +9,11 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by akoshevoy on 07.04.2015.
+ * Model for file list.
+ *
+ * @see FileList
  */
-public class StructureListModel extends AbstractListModel<DirectoryElement> {
+public class FileListModel extends AbstractListModel<DirectoryElement> {
     public static final Comparator<DirectoryElement> DEFAULT_DIRECTORY_ELEMENT_COMPARATOR = (o1, o2) -> {
         int compare = -Boolean.compare(o1.isDirectory(), o2.isDirectory());
         return compare != 0 ? compare : String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName());
@@ -20,14 +22,28 @@ public class StructureListModel extends AbstractListModel<DirectoryElement> {
     private ResolvedDirectory<?> currentDirectory;
     private List<DirectoryElement> sortedContent;
 
+    /**
+     * Returns current directory.
+     *
+     * @return current directory
+     */
     public ResolvedDirectory<?> getCurrentDirectory() {
         return currentDirectory;
     }
 
+    /**
+     * Disposes resources associated with resolved directory.
+     */
     public void disposeCurrentDirectoryResources() {
         setCurrentDirectory(null, true);
     }
 
+    /**
+     * Changes current directory to the new one disposing resources previously.
+     *
+     * @param currentDirectory new current directory
+     * @param disposeResources flag that determines if resources of previous current directory should be disposed
+     */
     public void setCurrentDirectory(ResolvedDirectory<?> currentDirectory, boolean disposeResources) {
         int oldSize = getSize();
         clearCurrentDirectory(disposeResources);
@@ -64,7 +80,7 @@ public class StructureListModel extends AbstractListModel<DirectoryElement> {
     }
 
     public boolean isEmpty() {
-        return getSize() == 0;
+        return sortedContent == null || sortedContent.isEmpty();
     }
 
     @Override

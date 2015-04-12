@@ -1,7 +1,7 @@
 package jet.task.previewer.ui.components.preview;
 
 /**
- * Created by akoshevoy on 06.04.2015.
+ * Thrown if format of image being loaded is unsupported.
  */
 public class UnsupportedImageFormatException extends RuntimeException {
 }

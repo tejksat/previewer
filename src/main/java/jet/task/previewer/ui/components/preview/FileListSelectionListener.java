@@ -1,7 +1,7 @@
 package jet.task.previewer.ui.components.preview;
 
 import jet.task.previewer.api.DirectoryElement;
-import jet.task.previewer.ui.components.structure.StructureList;
+import jet.task.previewer.ui.components.fs.FileList;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.ListSelectionEvent;
@@ -10,17 +10,17 @@ import java.util.Arrays;
 import java.util.stream.StreamSupport;
 
 /**
- * Created by Alex Koshevoy on 29.03.2015.
+ * Listens for selection changes in file list and dispatches selected file to preview component.
  */
-public class StructureListSelectionListener implements ListSelectionListener {
-    private final StructureList structureList;
+public class FileListSelectionListener implements ListSelectionListener {
+    private final FileList fileList;
     private final PreviewComponent previewComponent;
 
     private PreviewLoadSwingWorker currentWorker;
 
-    public StructureListSelectionListener(@NotNull StructureList structureList,
-                                          @NotNull PreviewComponent previewComponent) {
-        this.structureList = structureList;
+    public FileListSelectionListener(@NotNull FileList fileList,
+                                     @NotNull PreviewComponent previewComponent) {
+        this.fileList = fileList;
         this.previewComponent = previewComponent;
     }
 
@@ -34,7 +34,7 @@ public class StructureListSelectionListener implements ListSelectionListener {
             currentWorker.cancelBecausePreviewSelectionChanged();
             currentWorker = null;
         }
-        DirectoryElement selectedValue = structureList.getSelectedValue();
+        DirectoryElement selectedValue = fileList.getSelectedValue();
         if (selectedValue != null) {
             if (!selectedValue.isFile()) {
                 previewComponent.nothingToPreview();

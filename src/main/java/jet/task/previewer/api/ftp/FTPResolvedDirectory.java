@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 /**
- * Created by akoshevoy on 01.04.2015.
+ * Resolved FTP directory.
  */
 public class FTPResolvedDirectory implements ResolvedDirectory<FTPDirectoryElement> {
     private final FTPClientSession ftpClientSession;

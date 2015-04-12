@@ -3,13 +3,13 @@ package jet.task.previewer.api;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Created by Alex Koshevoy on 04.04.2015.
+ * Resolver with initially resolved target.
  */
-public class PreResolvedResolver extends SwingWorkerResolver {
+public class InitiallyResolvedResolver extends SwingWorkerResolver {
     private final ResolvedDirectory<?> resolvedDirectory;
 
-    private PreResolvedResolver(@NotNull ResolvedDirectory<?> resolvedDirectory,
-                                @NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
+    private InitiallyResolvedResolver(@NotNull ResolvedDirectory<?> resolvedDirectory,
+                                      @NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
         super(doneCallback);
         this.resolvedDirectory = resolvedDirectory;
     }
@@ -19,9 +19,9 @@ public class PreResolvedResolver extends SwingWorkerResolver {
         return resolvedDirectory;
     }
 
-    public static PreResolvedResolver submit(@NotNull ResolvedDirectory<?> resolvedDirectory,
+    public static InitiallyResolvedResolver submit(@NotNull ResolvedDirectory<?> resolvedDirectory,
                                              @NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
-        PreResolvedResolver worker = new PreResolvedResolver(resolvedDirectory, doneCallback);
+        InitiallyResolvedResolver worker = new InitiallyResolvedResolver(resolvedDirectory, doneCallback);
         worker.execute();
         return worker;
     }

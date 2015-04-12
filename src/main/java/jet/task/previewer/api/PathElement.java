@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Created by akoshevoy on 03.04.2015.
+ * Common class for {@link Path} based directory elements.
  */
 public abstract class PathElement implements DirectoryElement {
     protected final Path path;
@@ -29,7 +29,7 @@ public abstract class PathElement implements DirectoryElement {
 
     @Override
     public <R> R consumeInputStream(InputStreamConsumer<R> consumer) throws IOException {
-        try(InputStream inputStream = Files.newInputStream(path)) {
+        try (InputStream inputStream = Files.newInputStream(path)) {
             return consumer.accept(inputStream);
         }
     }

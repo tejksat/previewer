@@ -11,7 +11,7 @@ import java.nio.CharBuffer;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by Alex Koshevoy on 04.04.2015.
+ * Loads text for preview.
  */
 public class TextLoadSwingWorker extends PreviewLoadSwingWorker<String> {
     public static final int BUFFER_SIZE = 2048;
@@ -24,7 +24,6 @@ public class TextLoadSwingWorker extends PreviewLoadSwingWorker<String> {
     @Override
     protected String consumeInputStream(InputStream inputStream) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            // todo preserve char buffer
             CharBuffer charBuffer = CharBuffer.allocate(BUFFER_SIZE);
             reader.read(charBuffer);
             charBuffer.flip();

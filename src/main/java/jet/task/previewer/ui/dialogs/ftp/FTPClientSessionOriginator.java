@@ -63,8 +63,8 @@ public class FTPClientSessionOriginator extends SwingWorker<FTPClientSession, Vo
     @Override
     protected void done() {
         try {
-            FTPClientSession ftpClient = get();
-            callback.connectionEstablished(ftpClient);
+            FTPClientSession ftpClientSession = get();
+            callback.connectionEstablished(ftpClientSession);
         } catch (InterruptedException e) {
             logger.debug("Connection to [{}] has been interrupted", hostname, e);
             callback.connectionFailed();

@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Future;
 
 /**
- * Created by akoshevoy on 03.04.2015.
+ * Regular file or directory.
  */
 public class FileElement extends PathElement {
     public FileElement(@NotNull Path path) {

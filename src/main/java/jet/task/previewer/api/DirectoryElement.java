@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.util.concurrent.Future;
 
 /**
- * Created by akoshevoy on 03.04.2015.
+ * Represents an element of resolved directory that could be resolved (for example, it could FS directory or ZIP file)
+ * or consumed as input stream (for example, an image or text file for showing a preview).
  */
 public interface DirectoryElement {
     String getName();

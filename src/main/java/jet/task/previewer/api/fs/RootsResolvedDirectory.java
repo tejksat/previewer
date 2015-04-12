@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 /**
- * Created by akoshevoy on 03.04.2015.
+ * List of root directories.
  */
 public class RootsResolvedDirectory implements ResolvedDirectory<FileElement> {
     private final List<FileElement> directoryContent;

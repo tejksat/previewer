@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by Alex Koshevoy on 29.03.2015.
+ * Loads image in background and updates preview component according to result.
  */
 public class ImageLoadSwingWorker extends PreviewLoadSwingWorker<Image> {
     public ImageLoadSwingWorker(@NotNull DirectoryElement element, @NotNull PreviewComponent previewComponent) {
@@ -31,7 +31,7 @@ public class ImageLoadSwingWorker extends PreviewLoadSwingWorker<Image> {
 
     @Override
     protected void executionFailed(ExecutionException e) {
-        logger.warn("Failed to load image", e);
+        logger.warn("Failed to load image [{}]", element.getName(), e);
         previewComponent.imageLoadFailed();
     }
 

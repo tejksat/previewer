@@ -10,9 +10,9 @@ import jet.task.previewer.ftp.FTPClientUtils;
 import jet.task.previewer.ui.EventDispatchThreadUtils;
 import jet.task.previewer.ui.ImageUtils;
 import jet.task.previewer.ui.StatusHolder;
+import jet.task.previewer.ui.components.fs.FileList;
+import jet.task.previewer.ui.components.preview.FileListSelectionListener;
 import jet.task.previewer.ui.components.preview.PreviewComponent;
-import jet.task.previewer.ui.components.preview.StructureListSelectionListener;
-import jet.task.previewer.ui.components.structure.StructureList;
 import jet.task.previewer.ui.dialogs.ftp.OriginateFTPClientSessionDialog;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -68,30 +68,30 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
 
         setIconImages(ImageUtils.createImages(APPLICATION_ICON_SMALL, APPLICATION_ICON_LARGE));
 
-        // structure
-        StructureList structureList = StructureList.newInstance();
-        startEntryList(structureList);
-        JScrollPane structurePane = new JScrollPane(structureList);
+        // file list
+        FileList fileList = FileList.newInstance();
+        startEntryList(fileList);
+        JScrollPane structurePane = new JScrollPane(fileList);
 
         // preview
         JPanel previewPanel = new JPanel(new BorderLayout());
         PreviewComponent previewComponent = new PreviewComponent();
         previewPanel.add(previewComponent, BorderLayout.CENTER);
 
-        // structure + preview
+        // file list + preview
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, structurePane, previewPanel);
         splitPane.setResizeWeight(0.5);
         Container contentPane = new JPanel(new BorderLayout());
         contentPane.add(splitPane, BorderLayout.CENTER);
 
-        structureList.addListSelectionListener(new StructureListSelectionListener(structureList, previewComponent));
+        fileList.addListSelectionListener(new FileListSelectionListener(fileList, previewComponent));
 
         // tool bar
         JToolBar toolBar = new JToolBar();
         toolBar.add(new AbstractAction(UP_ACTION_LABEL, ImageUtils.createImageIcon(ARROW_UP_ICON, "Up")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                structureList.moveUp();
+                fileList.moveUp();
             }
         });
         toolBar.addSeparator();
@@ -102,14 +102,14 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
                 if (userHomePath == null) {
                     JOptionPane.showMessageDialog(ApplicationWindow.this, "We don't know were you home folder is :(", "Oops", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    structureList.setCurrentFileSystemPath(userHomePath);
+                    fileList.setCurrentFileSystemPath(userHomePath);
                 }
             }
         });
         toolBar.add(new AbstractAction(NEW_FTP_CONNECTION_ACTION_LABEL, ImageUtils.createImageIcon(FTP_ICON, "FTP Icon")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showNewFTPSessionDialog(structureList);
+                showNewFTPSessionDialog(fileList);
             }
         });
         contentPane.add(toolBar, BorderLayout.NORTH);
@@ -124,38 +124,38 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
             @Override
             public void windowClosed(WindowEvent e) {
                 // clean resources
-                structureList.disposeCurrentDirectoryResources();
+                fileList.disposeCurrentDirectoryResources();
             }
         });
 
         setContentPane(contentPane);
     }
 
-    private void showNewFTPSessionDialog(StructureList structureList) {
-        FTPClientSession ftpClient = OriginateFTPClientSessionDialog.requestFTPClient(ApplicationWindow.this);
-        if (ftpClient == null) {
+    private void showNewFTPSessionDialog(FileList fileList) {
+        FTPClientSession ftpClientSession = OriginateFTPClientSessionDialog.requestFTPClient(ApplicationWindow.this);
+        if (ftpClientSession == null) {
             return;
         }
-        FTPResolver.submit(ftpClient, FTPClientUtils.FTP_ROOT_PATHNAME, future -> {
+        FTPResolver.submit(ftpClientSession, FTPClientUtils.FTP_ROOT_PATHNAME, future -> {
             if (future.isCancelled()) {
-                ftpClient.close();
+                ftpClientSession.close();
             } else {
                 try {
                     ResolvedDirectory<?> resolvedDirectory = future.get();
-                    structureList.updateCurrentDirectory(resolvedDirectory);
+                    fileList.updateCurrentDirectory(resolvedDirectory);
                 } catch (InterruptedException exc) {
                     logger.error("FTP root directory listing has been interrupted", exc);
-                    ftpClient.close();
+                    ftpClientSession.close();
                 } catch (ExecutionException exc) {
                     logger.error("FTP root directory listing failed with exception", exc);
-                    ftpClient.close();
+                    ftpClientSession.close();
                 }
             }
         });
     }
 
-    private void startEntryList(StructureList structureList) {
-        structureList.updateCurrentDirectory(RootsResolvedDirectory.newInstance());
+    private void startEntryList(FileList fileList) {
+        fileList.updateCurrentDirectory(RootsResolvedDirectory.newInstance());
     }
 
     @Override

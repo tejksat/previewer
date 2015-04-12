@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 /**
- * Created by Alex Koshevoy on 01.04.2015.
+ * Resolved ZIP directory.
  */
 public class ZipResolvedDirectory extends PathResolvedDirectory<ZipElement> {
     private final Path basePath;

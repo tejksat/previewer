@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Future;
 
 /**
- * Created by akoshevoy on 03.04.2015.
+ * ZIP archive element.
  */
 public class ZipElement extends PathElement {
     private final Path basePath;

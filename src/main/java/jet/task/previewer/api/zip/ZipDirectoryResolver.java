@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Created by Alex Koshevoy on 05.04.2015.
+ * Resolves directory in ZIP archive.
  */
 public class ZipDirectoryResolver extends SwingWorkerResolver {
     private final Path path;

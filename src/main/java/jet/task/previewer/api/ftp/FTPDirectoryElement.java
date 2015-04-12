@@ -15,21 +15,21 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
- * Created by akoshevoy on 03.04.2015.
+ * FTP file or directory.
  */
 public class FTPDirectoryElement implements DirectoryElement {
     public static final String FTP_DIRECTORY_SEPARATOR = "/";
 
-    private final FTPClientSession ftpClient;
+    private final FTPClientSession ftpClientSession;
     private final String pathname;
     private final FTPFile ftpFile;
 
     private final Logger logger = LoggerFactory.getLogger(FTPDirectoryElement.class);
 
-    public FTPDirectoryElement(@NotNull FTPClientSession ftpClient,
+    public FTPDirectoryElement(@NotNull FTPClientSession ftpClientSession,
                                @NotNull String pathname,
                                @NotNull FTPFile ftpFile) {
-        this.ftpClient = ftpClient;
+        this.ftpClientSession = ftpClientSession;
         this.pathname = pathname;
         this.ftpFile = ftpFile;
     }
@@ -51,13 +51,13 @@ public class FTPDirectoryElement implements DirectoryElement {
 
     @Override
     public Future<ResolvedDirectory<?>> resolve(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException {
-        return FTPResolver.submit(ftpClient, pathname + FTP_DIRECTORY_SEPARATOR + ftpFile.getName(), doneCallback);
+        return FTPResolver.submit(ftpClientSession, pathname + FTP_DIRECTORY_SEPARATOR + ftpFile.getName(), doneCallback);
     }
 
     @Override
     public <R> R consumeInputStream(@NotNull InputStreamConsumer<R> consumer) throws IOException {
         try {
-            return ftpClient.consumeInputStream(ftpFile.getName(), consumer).get();
+            return ftpClientSession.consumeInputStream(ftpFile.getName(), consumer).get();
         } catch (InterruptedException e) {
             logger.trace("Input stream consumption for [{}] has been interrupted", ftpFile.getName(), e);
             throw new RuntimeException(e);

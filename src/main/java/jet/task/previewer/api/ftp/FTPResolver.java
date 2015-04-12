@@ -14,34 +14,34 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
- * Created by Alex Koshevoy on 04.04.2015.
+ * Resolves FTP pathname within provided FTP client session as directory.
  */
 public class FTPResolver extends SwingWorkerResolver {
-    private final FTPClientSession ftpClient;
+    private final FTPClientSession ftpClientSession;
     private final String pathname;
 
-    private FTPResolver(@NotNull FTPClientSession ftpClient, @NotNull String pathname,
+    private FTPResolver(@NotNull FTPClientSession ftpClientSession, @NotNull String pathname,
                         @NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
         super(doneCallback);
-        this.ftpClient = ftpClient;
+        this.ftpClientSession = ftpClientSession;
         this.pathname = pathname;
     }
 
     @Override
     protected FTPResolvedDirectory doInBackground() throws IOException, ExecutionException, InterruptedException {
-        Future<List<FTPFile>> result = ftpClient.changeWorkingDirectory(pathname);
+        Future<List<FTPFile>> result = ftpClientSession.changeWorkingDirectory(pathname);
         List<FTPFile> listedFiles = result.get();
         List<FTPDirectoryElement> content = listedFiles.stream()
                 .filter(x -> x != null)
-                .map(child -> new FTPDirectoryElement(ftpClient, pathname, child))
+                .map(child -> new FTPDirectoryElement(ftpClientSession, pathname, child))
                 .collect(Collectors.toList());
         // we need this check (see FTPClient.listFiles() Javadoc)
-        return new FTPResolvedDirectory(ftpClient, pathname, content);
+        return new FTPResolvedDirectory(ftpClientSession, pathname, content);
     }
 
-    public static FTPResolver submit(@NotNull FTPClientSession ftpClient, @NotNull String pathname,
+    public static FTPResolver submit(@NotNull FTPClientSession ftpClientSession, @NotNull String pathname,
                                      @NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
-        FTPResolver ftpResolver = new FTPResolver(ftpClient, pathname, doneCallback);
+        FTPResolver ftpResolver = new FTPResolver(ftpClientSession, pathname, doneCallback);
         ftpResolver.execute();
         return ftpResolver;
     }

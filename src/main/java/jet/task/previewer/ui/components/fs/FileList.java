@@ -1,4 +1,4 @@
-package jet.task.previewer.ui.components.structure;
+package jet.task.previewer.ui.components.fs;
 
 import jet.task.previewer.api.DirectoryElement;
 import jet.task.previewer.api.ResolvedDirectory;
@@ -23,20 +23,20 @@ import java.util.concurrent.ExecutionException;
 /**
  * List component that shows directory content.
  */
-public class StructureList extends JList<DirectoryElement> {
-    private final Logger logger = LoggerFactory.getLogger(StructureList.class);
+public class FileList extends JList<DirectoryElement> {
+    private final Logger logger = LoggerFactory.getLogger(FileList.class);
 
-    public StructureList() {
-        super(new StructureListModel());
+    public FileList() {
+        super(new FileListModel());
     }
 
     @Override
     public void setModel(ListModel<DirectoryElement> model) {
-        throw new UnsupportedOperationException(StructureList.class + " does not support arbitrary model change");
+        throw new UnsupportedOperationException(FileList.class + " does not support arbitrary model change");
     }
 
-    private StructureListModel getThisModel() {
-        return (StructureListModel) getModel();
+    private FileListModel getThisModel() {
+        return (FileListModel) getModel();
     }
 
     public void updateCurrentDirectory(@NotNull ResolvedDirectory<?> currentDirectory) {
@@ -44,7 +44,7 @@ public class StructureList extends JList<DirectoryElement> {
     }
 
     private void updateCurrentDirectory(@NotNull ResolvedDirectory<?> currentDirectory, boolean disposeResources) {
-        StructureListModel model = getThisModel();
+        FileListModel model = getThisModel();
         model.setCurrentDirectory(currentDirectory, disposeResources);
         requestFocus();
         if (!model.isEmpty()) {
@@ -68,34 +68,34 @@ public class StructureList extends JList<DirectoryElement> {
         return getThisModel().getCurrentDirectory();
     }
 
-    public static StructureList newInstance() {
-        StructureList structureList = new StructureList();
-        structureList.setCellRenderer(new StructureCellRenderer());
-        structureList.addMouseListener(new MouseAdapter() {
+    public static FileList newInstance() {
+        FileList fileList = new FileList();
+        fileList.setCellRenderer(new FileListCellRenderer());
+        fileList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (EventUtils.isPrimaryActionDoubleClick(e)) {
-                    Optional<Integer> listIndex = EventUtils.getListIndexAtPoint(structureList, e.getPoint());
+                    Optional<Integer> listIndex = EventUtils.getListIndexAtPoint(fileList, e.getPoint());
                     if (listIndex.isPresent()) {
-                        DirectoryElement element = structureList.getThisModel().getElementAt(listIndex.get());
-                        structureList.browseDirectoryIfResolvable(element);
+                        DirectoryElement element = fileList.getThisModel().getElementAt(listIndex.get());
+                        fileList.browseDirectoryIfResolvable(element);
                     }
                 }
             }
         });
-        structureList.addKeyListener(new KeyAdapter() {
+        fileList.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    DirectoryElement selectedElement = structureList.getSelectedValue();
-                    structureList.browseDirectoryIfResolvable(selectedElement);
+                    DirectoryElement selectedElement = fileList.getSelectedValue();
+                    fileList.browseDirectoryIfResolvable(selectedElement);
                 }
                 if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-                    structureList.moveUp();
+                    fileList.moveUp();
                 }
             }
         });
-        return structureList;
+        return fileList;
     }
 
     private void browseDirectoryIfResolvable(@NotNull DirectoryElement selectedElement) {
