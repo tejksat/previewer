@@ -30,4 +30,11 @@ public class FTPClientUtilsTest {
     public void getParentPathnameOfDouble() {
         FTPClientUtils.getParentPathname("//");
     }
+
+    @Test
+    public void testRelativePath() throws Exception {
+        Assert.assertEquals("one/two", FTPClientUtils.relativePath("one", "two"));
+        Assert.assertEquals("/a/b", FTPClientUtils.relativePath("/a", "b"));
+        Assert.assertEquals("/user", FTPClientUtils.relativePath("/", "user"));
+    }
 }

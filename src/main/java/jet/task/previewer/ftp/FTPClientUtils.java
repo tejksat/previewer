@@ -13,6 +13,7 @@ import java.text.MessageFormat;
  */
 public class FTPClientUtils {
     public static final String FTP_ROOT_PATHNAME = "/";
+    public static final String FTP_DIRECTORY_SEPARATOR = "/";
 
     private final static Logger logger = LoggerFactory.getLogger(FTPClientUtils.class);
 
@@ -105,5 +106,13 @@ public class FTPClientUtils {
         }
         pathname = pathname.substring(0, lastSlashIndex + 1);
         return pathname;
+    }
+
+    public static String relativePath(@NotNull String pathname, @NotNull String filename) {
+        if (pathname.endsWith(FTP_DIRECTORY_SEPARATOR)) {
+            return pathname + filename;
+        } else {
+            return pathname + FTP_DIRECTORY_SEPARATOR + filename;
+        }
     }
 }

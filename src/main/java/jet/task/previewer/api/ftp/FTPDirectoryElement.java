@@ -5,6 +5,7 @@ import jet.task.previewer.api.DoneCallback;
 import jet.task.previewer.api.InputStreamConsumer;
 import jet.task.previewer.api.ResolvedDirectory;
 import jet.task.previewer.ftp.FTPClientSession;
+import jet.task.previewer.ftp.FTPClientUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -18,7 +19,6 @@ import java.util.concurrent.Future;
  * FTP file or directory.
  */
 public class FTPDirectoryElement implements DirectoryElement {
-    public static final String FTP_DIRECTORY_SEPARATOR = "/";
 
     private final FTPClientSession ftpClientSession;
     private final String pathname;
@@ -51,7 +51,7 @@ public class FTPDirectoryElement implements DirectoryElement {
 
     @Override
     public Future<ResolvedDirectory<?>> resolve(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException {
-        return FTPResolver.submit(ftpClientSession, pathname + FTP_DIRECTORY_SEPARATOR + ftpFile.getName(), doneCallback);
+        return FTPResolver.submit(ftpClientSession, FTPClientUtils.relativePath(pathname, ftpFile.getName()), doneCallback);
     }
 
     @Override
