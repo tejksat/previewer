@@ -49,6 +49,7 @@ public class FileList extends JList<DirectoryElement> {
         requestFocus();
         if (!model.isEmpty()) {
             setSelectedIndex(0);
+            ensureIndexIsVisible(0);
         }
     }
 
