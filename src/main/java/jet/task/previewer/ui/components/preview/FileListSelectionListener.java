@@ -26,7 +26,6 @@ public class FileListSelectionListener implements ListSelectionListener {
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        // todo do this conditionally?
         if (e.getValueIsAdjusting()) {
             return;
         }

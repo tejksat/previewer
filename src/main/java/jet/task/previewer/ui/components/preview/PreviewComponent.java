@@ -160,7 +160,7 @@ public class PreviewComponent extends JComponent {
         if (image != null) {
             Rectangle componentBounds = getBounds();
             if (componentBounds.intersects(g.getClipBounds())) {
-                // todo render component within clip bounds
+                // we may render component only within clip bounds
                 int imageWidth = image.getWidth(this);
                 int imageHeight = image.getHeight(this);
                 double scaleFactor = Math.min(1.0, Math.min((double) componentBounds.width / imageWidth, (double) componentBounds.height / imageHeight));
