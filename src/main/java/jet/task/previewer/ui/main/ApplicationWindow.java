@@ -63,6 +63,8 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationWindow.class);
 
+    private volatile boolean closed = false;
+
     public ApplicationWindow() {
         super(WINDOW_TITLE);
 
@@ -124,6 +126,7 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
             @Override
             public void windowClosed(WindowEvent e) {
                 // clean resources
+                closed = true;
                 fileList.disposeCurrentDirectoryResources();
             }
         });
@@ -142,7 +145,11 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
             } else {
                 try {
                     ResolvedDirectory<?> resolvedDirectory = future.get();
-                    fileList.updateCurrentDirectory(resolvedDirectory);
+                    if (!closed) {
+                        fileList.updateCurrentDirectory(resolvedDirectory);
+                    } else {
+                        resolvedDirectory.dispose();
+                    }
                 } catch (InterruptedException exc) {
                     logger.error("FTP root directory listing has been interrupted", exc);
                     ftpClientSession.close();
