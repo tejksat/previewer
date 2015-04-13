@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -65,14 +66,25 @@ public class OriginateFTPClientSessionDialog extends JDialog {
 
     private void connect() {
         String address = addressTextField.getText();
+        if (StringUtils.isEmpty(address)) {
+            JOptionPane.showMessageDialog(this, "Please, specify FTP server address.",
+                    "Address is empty", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         int delimiter = address.lastIndexOf(":");
         FTPClientSessionOriginator worker;
         if (delimiter == -1) {
             worker = new FTPClientSessionOriginator(address, callback);
         } else {
             String host = address.substring(0, delimiter);
-            // todo catch NumberFormatException
-            int port = Integer.valueOf(address.substring(delimiter + 1));
+            int port;
+            try {
+                port = Integer.valueOf(address.substring(delimiter + 1));
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Please, specify either host or host and port delimited by colon.",
+                        "Wrong address specified", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             worker = new FTPClientSessionOriginator(host, port, callback);
         }
         String username = userTextField.getText();
