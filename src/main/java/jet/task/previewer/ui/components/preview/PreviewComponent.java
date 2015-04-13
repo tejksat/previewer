@@ -22,7 +22,7 @@ import java.awt.Rectangle;
  * {@link #loadingPreview()} method.
  */
 public class PreviewComponent extends JComponent {
-    public static final String WELCOME_TEXT = "Select a file";
+    public static final String WELCOME_TEXT = "Select file";
     public static final String IMAGE_LOAD_FAILED_TEXT = "Image load failed";
     public static final String TEXT_LOAD_FAILED_TEXT = "Text load failed";
     public static final String PREVIEW_CANCELLED_TEXT = "Cancelled";
