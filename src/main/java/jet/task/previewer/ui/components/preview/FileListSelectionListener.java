@@ -61,7 +61,7 @@ public class FileListSelectionListener implements ListSelectionListener {
     }
 
     private boolean hasTextExtension(DirectoryElement element) {
-        return hasOneOfExtensions(element.getName(), ".txt", ".ini");
+        return hasOneOfExtensions(element.getName(), ".log", ".ini", ".txt");
     }
 
     private static boolean hasOneOfExtensions(String name, String... extensions) {

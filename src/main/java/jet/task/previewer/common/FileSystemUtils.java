@@ -32,4 +32,13 @@ public class FileSystemUtils {
         String userHome = System.getProperty("user.home");
         return userHome == null ? null : FileSystems.getDefault().getPath(userHome);
     }
+
+    public static String getFilenameExtension(@NotNull String filename) {
+        int i = filename.lastIndexOf(".");
+        if (i == -1 || i == filename.length() - 1) {
+            return null;
+        } else {
+            return filename.substring(i + 1);
+        }
+    }
 }
