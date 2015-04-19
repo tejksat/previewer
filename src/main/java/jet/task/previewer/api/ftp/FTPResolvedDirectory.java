@@ -5,8 +5,6 @@ import jet.task.previewer.api.ResolvedDirectory;
 import jet.task.previewer.ftp.FTPClientSession;
 import jet.task.previewer.ftp.FTPClientUtils;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,8 +17,6 @@ public class FTPResolvedDirectory implements ResolvedDirectory<FTPDirectoryEleme
     private final FTPClientSession ftpClientSession;
     private final String currentPathname;
     private final List<FTPDirectoryElement> files;
-
-    private final Logger logger = LoggerFactory.getLogger(FTPResolvedDirectory.class);
 
     public FTPResolvedDirectory(@NotNull FTPClientSession ftpClientSession,
                                 @NotNull String currentPathname,
