@@ -8,6 +8,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
@@ -16,6 +17,9 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
+
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
 
 /**
  * Component for displaying text and image files previews. It is also able to display loading in-progress status with
@@ -28,6 +32,7 @@ public class PreviewComponent extends JComponent {
     public static final String PREVIEW_CANCELLED_TEXT = "Cancelled";
 
     private final JLabel informationLabel;
+    private final JScrollPane textAreaPane;
     private final JTextArea textArea;
     private Image image;
 
@@ -44,6 +49,8 @@ public class PreviewComponent extends JComponent {
         textArea.setEditable(false);
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         textArea.setLineWrap(true);
+
+        textAreaPane = new JScrollPane(textArea, VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_NEVER);
 
         add(informationLabel, BorderLayout.CENTER);
     }
@@ -83,7 +90,8 @@ public class PreviewComponent extends JComponent {
         clearScreen();
 
         textArea.setText(text);
-        add(textArea, BorderLayout.CENTER);
+        textArea.setCaretPosition(0);
+        add(textAreaPane, BorderLayout.CENTER);
 
         updateScreen();
     }

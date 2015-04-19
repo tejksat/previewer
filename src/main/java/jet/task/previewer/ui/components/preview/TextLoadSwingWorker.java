@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
  * Loads text for preview.
  */
 public class TextLoadSwingWorker extends PreviewLoadSwingWorker<String> {
-    public static final int BUFFER_SIZE = 2048;
+    private static final int BUFFER_SIZE = 8192;
 
     public TextLoadSwingWorker(@NotNull DirectoryElement element, @NotNull PreviewComponent previewComponent) {
         super(element, previewComponent);
