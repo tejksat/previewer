@@ -154,6 +154,7 @@ public class OriginateFTPClientSessionDialog extends JDialog {
         OriginateFTPClientSessionDialog dialog = new OriginateFTPClientSessionDialog(applicationWindow);
         dialog.setStatusHolder(applicationWindow);
         dialog.pack();
+        dialog.setLocationRelativeTo(applicationWindow);
         dialog.setVisible(true);
         return dialog.getFTPClientSession();
     }

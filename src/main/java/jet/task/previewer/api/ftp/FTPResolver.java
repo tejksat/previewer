@@ -30,12 +30,18 @@ public class FTPResolver extends SwingWorkerResolver {
     @Override
     protected FTPResolvedDirectory doInBackground() throws IOException, ExecutionException, InterruptedException {
         Future<List<FTPFile>> result = ftpClientSession.changeWorkingDirectory(pathname);
-        List<FTPFile> listedFiles = result.get();
+        List<FTPFile> listedFiles;
+        try {
+            listedFiles = result.get();
+        } catch (InterruptedException e) {
+            result.cancel(true);
+            throw e;
+        }
         List<FTPDirectoryElement> content = listedFiles.stream()
+                // we need this filter (see FTPClient.listFiles() Javadoc)
                 .filter(x -> x != null)
                 .map(child -> new FTPDirectoryElement(ftpClientSession, pathname, child))
                 .collect(Collectors.toList());
-        // we need this check (see FTPClient.listFiles() Javadoc)
         return new FTPResolvedDirectory(ftpClientSession, pathname, content);
     }
 

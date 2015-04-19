@@ -13,6 +13,7 @@ import jet.task.previewer.ui.StatusHolder;
 import jet.task.previewer.ui.components.fs.FileList;
 import jet.task.previewer.ui.components.preview.FileListSelectionListener;
 import jet.task.previewer.ui.components.preview.PreviewComponent;
+import jet.task.previewer.ui.dialogs.ftp.ListingDirectoryDialog;
 import jet.task.previewer.ui.dialogs.ftp.OriginateFTPClientSessionDialog;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -139,7 +140,9 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
         if (ftpClientSession == null) {
             return;
         }
-        FTPResolver.submit(ftpClientSession, FTPClientUtils.FTP_ROOT_PATHNAME, future -> {
+        ListingDirectoryDialog listingDirectoryDialog = ListingDirectoryDialog.createDialog(this, ftpClientSession.getServerAddress());
+        FTPResolver ftpResolver = FTPResolver.submit(ftpClientSession, FTPClientUtils.FTP_ROOT_PATHNAME, future -> {
+            listingDirectoryDialog.setVisible(false);
             if (future.isCancelled()) {
                 ftpClientSession.close();
             } else {
@@ -151,7 +154,7 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
                         resolvedDirectory.dispose();
                     }
                 } catch (InterruptedException exc) {
-                    logger.error("FTP root directory listing has been interrupted", exc);
+                    logger.debug("FTP root directory listing has been interrupted", exc);
                     ftpClientSession.close();
                 } catch (ExecutionException exc) {
                     logger.error("FTP root directory listing failed with exception", exc);
@@ -159,6 +162,8 @@ public class ApplicationWindow extends JFrame implements StatusHolder {
                 }
             }
         });
+        listingDirectoryDialog.setFuture(ftpResolver);
+        EventDispatchThreadUtils.invokeASAP(() -> listingDirectoryDialog.setVisible(true));
     }
 
     private void startEntryList(FileList fileList) {

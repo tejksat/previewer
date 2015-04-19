@@ -52,7 +52,6 @@ public class FTPResolvedDirectory implements ResolvedDirectory<FTPDirectoryEleme
 
     @Override
     public void dispose() {
-        logger.debug("Closing FTP client session");
         ftpClientSession.close();
     }
 }

@@ -5,6 +5,7 @@ import jet.task.previewer.common.FileSystemUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPListParseEngine;
 import org.apache.commons.net.ftp.FTPReply;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -42,9 +44,15 @@ public class FTPClientSession {
 
     private final Logger logger = LoggerFactory.getLogger(FTPClientSession.class);
 
+    private volatile String serverAddress;
+
     public FTPClientSession() {
         this.ftpClient = new FTPClient();
         this.executorService = Executors.newSingleThreadExecutor();
+    }
+
+    public String getServerAddress() {
+        return ftpClient.isConnected() ? serverAddress : null;
     }
 
     public void connect(@NotNull String hostname, @NotNull Optional<Integer> port)
@@ -53,8 +61,10 @@ public class FTPClientSession {
             throw new IllegalStateException("Already connected to FTP server");
         }
         if (port.isPresent()) {
+            serverAddress = String.format("%s:%d", hostname, port.get());
             ftpClient.connect(hostname, port.get());
         } else {
+            serverAddress = hostname;
             ftpClient.connect(hostname);
         }
         // connected but we have not checked reply yet
@@ -103,9 +113,19 @@ public class FTPClientSession {
                     logger.debug("Working directory changed to {}", pathname);
                     // if FTPClient.listFiles() throws an exception it is unrecoverable
                     logger.debug("Listing files in directory {}", pathname);
-                    FTPFile[] ftpFiles = ftpClient.listFiles();
-                    logger.debug("Files in directory {} listed", pathname);
-                    return Arrays.asList(ftpFiles);
+                    ArrayList<FTPFile> ftpFiles = new ArrayList<>();
+                    FTPListParseEngine ftpListParseEngine = ftpClient.initiateListParsing();
+                    while (ftpListParseEngine.hasNext()) {
+                        if (Thread.interrupted()) {
+                            logger.debug("Listing directory {} has been interrupted", pathname);
+                            throw new InterruptedException("Listing directory " + pathname + " has been interrupted");
+                        }
+                        FTPFile[] next = ftpListParseEngine.getNext(25);
+                        ftpFiles.addAll(Arrays.asList(next));
+                        logger.trace("{} files acquired from path {}", ftpFiles.size(), pathname);
+                    }
+                    logger.debug("{} files listed in directory {}", ftpFiles.size(), pathname);
+                    return ftpFiles;
                 } else {
                     logger.warn("Unable to change working directory to {} ({})", pathname,
                             FTPClientUtils.getServerReplyInformation(ftpClient));
@@ -146,8 +166,13 @@ public class FTPClientSession {
     }
 
     public void close() {
+        if (ftpClient.isConnected()) {
+            logger.debug("Close FTP client session with [{}]", serverAddress);
+        } else {
+            logger.debug("Close FTP client session");
+        }
         try {
-            executorService.shutdown();
+            executorService.shutdownNow();
             if (!executorService.awaitTermination(5L, TimeUnit.SECONDS)) {
                 logger.error("Timeout occurred on shutting down [{}] executor service", FTPClientSession.class.getName());
             }

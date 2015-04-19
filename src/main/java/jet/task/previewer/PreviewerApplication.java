@@ -21,9 +21,10 @@ public class PreviewerApplication {
     private void start() {
         SwingUtilities.invokeLater(() -> {
             ApplicationWindow applicationWindow = new ApplicationWindow();
+            applicationWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             applicationWindow.setPreferredSize(new Dimension(500, 500));
             applicationWindow.pack();
-            applicationWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            applicationWindow.setLocationRelativeTo(null);
             applicationWindow.setVisible(true);
         });
     }
