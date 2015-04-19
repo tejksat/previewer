@@ -68,7 +68,7 @@ public class FTPClientSession {
             ftpClient.connect(hostname);
         }
         // connected but we have not checked reply yet
-        logger.debug("Connected to [{}]", hostname);
+        logger.info("Connected to [{}]", hostname);
         int replyCode = ftpClient.getReplyCode();
         String replyString = ftpClient.getReplyString();
         if (!FTPReply.isPositiveCompletion(replyCode)) {
@@ -110,7 +110,7 @@ public class FTPClientSession {
         return executorService.submit(() -> {
             try {
                 if (command.call()) {
-                    logger.debug("Working directory changed to {}", pathname);
+                    logger.info("Working directory changed to {}", pathname);
                     // if FTPClient.listFiles() throws an exception it is unrecoverable
                     logger.debug("Listing files in directory {}", pathname);
                     ArrayList<FTPFile> ftpFiles = new ArrayList<>();
@@ -124,7 +124,7 @@ public class FTPClientSession {
                         ftpFiles.addAll(Arrays.asList(next));
                         logger.trace("{} files acquired from path {}", ftpFiles.size(), pathname);
                     }
-                    logger.debug("{} files listed in directory {}", ftpFiles.size(), pathname);
+                    logger.info("{} files listed in directory {}", ftpFiles.size(), pathname);
                     return ftpFiles;
                 } else {
                     logger.warn("Unable to change working directory to {} ({})", pathname,
@@ -167,9 +167,9 @@ public class FTPClientSession {
 
     public void close() {
         if (ftpClient.isConnected()) {
-            logger.debug("Close FTP client session with [{}]", serverAddress);
+            logger.info("Close FTP session with [{}]", serverAddress);
         } else {
-            logger.debug("Close FTP client session");
+            logger.info("Close FTP session");
         }
         try {
             executorService.shutdownNow();
