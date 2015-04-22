@@ -50,7 +50,7 @@ public class FileListView {
     }
 
     private ImageIcon getFileIcon(@NotNull DirectoryElement directoryElement) {
-        String filenameExtension = FileSystemUtils.getFilenameExtension(directoryElement.getName());
+        String filenameExtension = FileSystemUtils.getFilenameExtension(directoryElement.getName().toLowerCase());
         return extensionIcons.containsKey(filenameExtension) ? extensionIcons.get(filenameExtension) : fileIcon;
     }
 }

@@ -39,6 +39,10 @@ public class DirectoryResolverUtils {
     }
 
     public static boolean isZipFile(@NotNull Path element) {
-        return Files.isRegularFile(element) && element.getFileName().toString().endsWith(FileResolvedDirectory.ZIP_FILE_EXTENSION);
+        return Files.isRegularFile(element) && hasZipExtension(element.getFileName().toString());
+    }
+
+    public static boolean hasZipExtension(@NotNull String pathname) {
+        return pathname.toLowerCase().endsWith(FileResolvedDirectory.ZIP_FILE_EXTENSION);
     }
 }
