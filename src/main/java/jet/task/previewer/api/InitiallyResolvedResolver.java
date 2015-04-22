@@ -20,7 +20,7 @@ public class InitiallyResolvedResolver extends SwingWorkerResolver {
     }
 
     public static InitiallyResolvedResolver submit(@NotNull ResolvedDirectory<?> resolvedDirectory,
-                                             @NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
+                                                   @NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
         InitiallyResolvedResolver worker = new InitiallyResolvedResolver(resolvedDirectory, doneCallback);
         worker.execute();
         return worker;

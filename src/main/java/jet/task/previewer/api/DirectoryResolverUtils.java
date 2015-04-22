@@ -31,7 +31,6 @@ public class DirectoryResolverUtils {
 
     public static ZipResolvedDirectory resolveZipDirectory(@NotNull Path path, @NotNull Path basePath) throws IOException {
         DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
-//        List<Path> directoryContent = StreamSupport.stream(directoryStream.spliterator(), false).collect(Collectors.toList());
         List<ZipElement> directoryContent = new ArrayList<>();
         for (Path child : directoryStream) {
             directoryContent.add(new ZipElement(child, basePath));

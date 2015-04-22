@@ -28,15 +28,6 @@ public class FTPClientUtils {
         }
     }
 
-    public static void logoutQuietly(FTPClient ftpClient) {
-        try {
-            ftpClient.logout();
-        } catch (IOException e) {
-            logger.debug("Error occurred on logout", e);
-            disconnectQuietly(ftpClient);
-        }
-    }
-
     public static void completePendingCommandQuietly(FTPClient ftpClient) {
         try {
             if (ftpClient.completePendingCommand()) {

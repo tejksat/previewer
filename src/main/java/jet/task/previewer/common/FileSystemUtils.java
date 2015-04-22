@@ -14,7 +14,7 @@ import java.nio.file.Path;
  * Utility methods for working with files and streams.
  */
 public class FileSystemUtils {
-    private static Logger logger = LoggerFactory.getLogger(FileSystemUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileSystemUtils.class);
 
     private FileSystemUtils() {
     }

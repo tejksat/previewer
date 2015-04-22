@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Alex Koshevoy on 13.04.2015.
+ * Helps {@link FileListCellRenderer} show fancy icons.
  */
 public class FileListView {
     private static final String[] IMAGE_FILES_EXTENSIONS = new String[]{"gif", "jpg", "png"};

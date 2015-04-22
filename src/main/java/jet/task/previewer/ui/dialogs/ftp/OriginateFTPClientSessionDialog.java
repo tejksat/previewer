@@ -107,9 +107,6 @@ public class OriginateFTPClientSessionDialog extends JDialog {
         System.exit(0);
     }
 
-    private void createUIComponents() {
-    }
-
     private Collection<JComponent> getActiveComponents() {
         return Arrays.asList(addressTextField, userTextField, passwordField, buttonConnect, buttonCancel);
     }
