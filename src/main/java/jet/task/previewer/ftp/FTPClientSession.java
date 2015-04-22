@@ -46,6 +46,12 @@ public class FTPClientSession {
 
     private volatile String serverAddress;
 
+    // test only
+    protected FTPClientSession(@NotNull FTPClient ftpClient) {
+        this.ftpClient = ftpClient;
+        this.executorService = Executors.newSingleThreadExecutor();
+    }
+
     public FTPClientSession() {
         this.ftpClient = new FTPClient();
         this.executorService = Executors.newSingleThreadExecutor();

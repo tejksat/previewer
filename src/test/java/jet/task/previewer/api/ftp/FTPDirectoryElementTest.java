@@ -17,15 +17,15 @@ import java.util.concurrent.Future;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link FTPDirectoryElement}.
  */
 public class FTPDirectoryElementTest {
-    @Mock
-    private FTPClientSession ftpClientSession;
+    @Mock private FTPClientSession ftpClientSession;
+    @Mock private Future<List<FTPFile>> changeWorkingDirectoryFuture;
+    @Mock private Future<String> consumerFuture;
     private FTPFile ftpFile;
     private FTPDirectoryElement ftpDirectoryElement;
 
@@ -70,14 +70,9 @@ public class FTPDirectoryElementTest {
     @Test
     public void testResolve() throws Exception {
         ftpFile.setName("folder");
-        Future<List<FTPFile>> futureMock = Mockito.mock(Future.class);
-        FTPFile childOne = new FTPFile();
-        childOne.setName("one");
-        FTPFile childTwo = new FTPFile();
-        childTwo.setName("two");
-        List<FTPFile> remoteContent = Arrays.asList(childOne, childTwo);
-        when(futureMock.get()).thenReturn(remoteContent);
-        when(ftpClientSession.changeWorkingDirectory("/folder")).thenReturn(futureMock);
+        List<FTPFile> remoteContent = Arrays.asList(FTPFiles.file("one"), FTPFiles.file("two"));
+        when(changeWorkingDirectoryFuture.get()).thenReturn(remoteContent);
+        when(ftpClientSession.changeWorkingDirectory("/folder")).thenReturn(changeWorkingDirectoryFuture);
 
         Future<ResolvedDirectory<?>> resolve = ftpDirectoryElement.resolve(future -> {});
         ResolvedDirectory<?> resolvedDirectory = resolve.get();
@@ -90,10 +85,9 @@ public class FTPDirectoryElementTest {
 
     @Test
     public void testConsumeInputStream() throws Exception {
-        Future consumerMock = mock(Future.class);
-        when(consumerMock.get()).thenReturn("application.log content");
+        when(consumerFuture.get()).thenReturn("application.log content");
         ftpFile.setName("application.log");
-        when(ftpClientSession.consumeInputStream(eq("application.log"), any())).thenReturn(consumerMock);
+        when(ftpClientSession.<String>consumeInputStream(eq("application.log"), any())).thenReturn(consumerFuture);
         String consumerResult = ftpDirectoryElement.<String>consumeInputStream(inputStream -> null);
         Mockito.verify(ftpClientSession).consumeInputStream(eq("application.log"), any());
         Mockito.verifyNoMoreInteractions(ftpClientSession);
