@@ -15,7 +15,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -119,7 +118,7 @@ public class FileList extends JList<DirectoryElement> {
                     setEnabled(true);
                 }
             });
-        } catch (IOException | RuntimeException e) {
+        } catch (RuntimeException e) {
             logger.error("Failed to change directory to [{}]", selectedElement.getName(), e);
             setEnabled(true);
         }
@@ -146,7 +145,7 @@ public class FileList extends JList<DirectoryElement> {
                     setEnabled(true);
                 }
             });
-        } catch (IOException | RuntimeException e) {
+        } catch (RuntimeException e) {
             logger.error("Changing current directory to parent directory failed with exception", e);
             setEnabled(true);
         }
