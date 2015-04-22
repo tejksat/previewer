@@ -50,7 +50,7 @@ public class FTPDirectoryElement implements DirectoryElement {
     }
 
     @Override
-    public Future<ResolvedDirectory<?>> resolve(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException {
+    public Future<ResolvedDirectory<?>> resolve(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
         return FTPResolver.submit(ftpClientSession, FTPClientUtils.relativePath(pathname, ftpFile.getName()), doneCallback);
     }
 

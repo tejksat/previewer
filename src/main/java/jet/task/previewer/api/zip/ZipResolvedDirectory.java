@@ -6,7 +6,6 @@ import jet.task.previewer.api.ResolvedDirectory;
 import jet.task.previewer.api.fs.FileDirectoryResolver;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -30,7 +29,7 @@ public class ZipResolvedDirectory extends PathResolvedDirectory<ZipElement> {
     }
 
     @Override
-    public Future<ResolvedDirectory<?>> resolveParent(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException {
+    public Future<ResolvedDirectory<?>> resolveParent(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
         Path parent = getCurrentPath().getParent();
         if (parent == null) {
             return FileDirectoryResolver.submit(basePath.getParent(), doneCallback);

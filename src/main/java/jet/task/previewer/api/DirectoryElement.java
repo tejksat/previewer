@@ -18,7 +18,7 @@ public interface DirectoryElement {
 
     boolean canBeResolvedToDirectory();
 
-    Future<ResolvedDirectory<?>> resolve(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException;
+    Future<ResolvedDirectory<?>> resolve(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback);
 
     <R> R consumeInputStream(InputStreamConsumer<R> consumer) throws IOException;
 }

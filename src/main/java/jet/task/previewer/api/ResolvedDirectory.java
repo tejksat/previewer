@@ -2,7 +2,6 @@ package jet.task.previewer.api;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -16,7 +15,7 @@ public interface ResolvedDirectory<E extends DirectoryElement> {
 
     boolean hasParent();
 
-    Future<ResolvedDirectory<?>> resolveParent(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException;
+    Future<ResolvedDirectory<?>> resolveParent(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback);
 
     void dispose();
 }

@@ -6,7 +6,6 @@ import jet.task.previewer.ftp.FTPClientSession;
 import jet.task.previewer.ftp.FTPClientUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -42,7 +41,7 @@ public class FTPResolvedDirectory implements ResolvedDirectory<FTPDirectoryEleme
     }
 
     @Override
-    public Future<ResolvedDirectory<?>> resolveParent(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException {
+    public Future<ResolvedDirectory<?>> resolveParent(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
         return FTPResolver.submit(ftpClientSession, FTPClientUtils.getParentPathname(currentPathname), doneCallback);
     }
 

@@ -6,7 +6,6 @@ import jet.task.previewer.api.PathResolvedDirectory;
 import jet.task.previewer.api.ResolvedDirectory;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -29,7 +28,7 @@ public class FileResolvedDirectory extends PathResolvedDirectory<FileElement> {
     }
 
     @Override
-    public Future<ResolvedDirectory<?>> resolveParent(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) throws IOException {
+    public Future<ResolvedDirectory<?>> resolveParent(@NotNull DoneCallback<ResolvedDirectory<?>> doneCallback) {
         Path parent = getCurrentPath().getParent();
         if (parent == null) {
             return InitiallyResolvedResolver.submit(new RootsResolvedDirectory(), doneCallback);
